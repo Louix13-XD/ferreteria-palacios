@@ -196,7 +196,7 @@
             // 2. Mostrar botón de creación SOLO para Admin
             const createBtn = document.getElementById('btn-add-worker');
             if (createBtn) {
-                if (currentUser.role === 'admin') {
+                if (currentUser.role === 'admin' || currentUser.role === 'Admin') {
                     createBtn.classList.remove('d-none');
                 }
             }
@@ -236,7 +236,7 @@
                         <td class="text-muted">${worker.phone || '---'}</td>
                         <td><span class="badge bg-success rounded-pill px-3">Activo</span></td>
                         <td class="text-end pe-4">
-                            ${currentUser.role === 'admin' ? `
+                            ${currentUser.role === 'admin' || currentUser.role === 'Admin' ? `
                                 <button class="btn btn-sm btn-outline-dark me-1" onclick="openEditWorker(${index})"><i class="bi bi-pencil"></i></button>
                                 <button class="btn btn-sm btn-outline-danger" onclick="deleteWorker(${index})"><i class="bi bi-trash"></i></button>
                             ` : '<span class="text-muted small">Solo lectura</span>'}
