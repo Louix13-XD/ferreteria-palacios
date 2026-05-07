@@ -1,0 +1,216 @@
+<%- include('header') %>
+
+<main class="container mt-4">
+    <!-- Banner de Aviso Demo -->
+    <div class="alert alert-warning border-0 shadow-sm rounded-4 d-flex align-items-center p-4 mb-5" role="alert">
+        <i class="bi bi-exclamation-triangle-fill fs-2 me-4 text-dark"></i>
+        <div>
+            <h5 class="fw-bold mb-1">ENTORNO DE PRUEBAS ACADÉMICAS</h5>
+            <p class="mb-0 small">Esta página es una simulación de pago seguro. <strong>No ingreses datos reales de tu tarjeta.</strong> El sistema validará el formato de los datos pero no realizará ningún cargo económico.</p>
+        </div>
+    </div>
+
+    <div class="row g-5">
+        <!-- Formulario de Pago y Envío -->
+        <div class="col-lg-7">
+            <div class="card border-0 shadow-sm rounded-4 p-4 mb-4">
+                <h4 class="fw-bold mb-4">1. Información de Envío</h4>
+                <form id="paymentForm">
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold">Nombre</label>
+                            <input type="text" id="cust-name" class="form-control" value="Juan" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold">Apellidos</label>
+                            <input type="text" id="cust-lastname" class="form-control" value="Pérez" required>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label small fw-bold">Dirección de Entrega</label>
+                            <input type="text" class="form-control" placeholder="Av. Ejemplo 123, Lima" required>
+                        </div>
+                    </div>
+
+                    <h4 class="fw-bold mb-4">2. Método de Pago Seguro</h4>
+                    <div class="bg-light p-4 rounded-4 mb-4 border">
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <span class="fw-bold"><i class="bi bi-credit-card me-2"></i>Tarjeta de Crédito / Débito</span>
+                            <div>
+                                <i class="bi bi-credit-card-2-front fs-3 opacity-50"></i>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold">Número de Tarjeta</label>
+                            <input type="text" id="cardNum" class="form-control fs-5 py-2" placeholder="0000 0000 0000 0000" maxlength="19" required>
+                            <div id="cardError" class="text-danger small mt-1 d-none">Número de tarjeta inválido (16 dígitos)</div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label small fw-bold">Fecha de Expiración</label>
+                                <input type="text" id="cardExp" class="form-control" placeholder="MM/YY" maxlength="5" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label small fw-bold">CVV</label>
+                                <input type="password" id="cardCvv" class="form-control" placeholder="123" maxlength="3" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-dark w-100 fw-bold py-3 shadow-lg" id="btnPay">
+                        <span id="btnText">PAGAR AHORA S/ <span id="checkout-total">0.00</span></span>
+                        <div id="btnLoading" class="spinner-border spinner-border-sm d-none" role="status"></div>
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Resumen a la derecha -->
+        <div class="col-lg-5">
+            <div class="card border-0 shadow-sm rounded-4 p-4 sticky-top" style="top: 100px;">
+                <h5 class="fw-bold mb-4 text-uppercase small text-muted">Tu Pedido</h5>
+                <div id="checkout-items" class="mb-4">
+                    <!-- Productos cargados por JS -->
+                </div>
+                <hr>
+                <div class="d-flex justify-content-between mb-3">
+                    <span class="fw-bold fs-5">Total a Pagar:</span>
+                    <span class="fw-bold fs-4 text-warning" id="final-total">S/ 0.00</span>
+                </div>
+                <p class="text-muted small">Al pagar, aceptas que esta es una simulación académica sin efectos legales.</p>
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- Modal de Procesando -->
+<div class="modal fade" id="processingModal" data-bs-backdrop="static" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg p-5 text-center rounded-4">
+            <div class="spinner-border text-warning mb-4" style="width: 3rem; height: 3rem;" role="status"></div>
+            <h4 class="fw-bold">Procesando pago seguro...</h4>
+            <p class="text-muted mb-0">Estamos verificando los datos con tu entidad financiera. No cierres esta ventana.</p>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // --- COMENTAR ESTA LÍNEA DESPUÉS DE USARLA SI DESEAS PERSISTENCIA ---
+        // localStorage.clear(); // Limpia todo para empezar a 0 como pediste
+
+        const cart = JSON.parse(localStorage.getItem('cart')) || [];
+        const itemsContainer = document.getElementById('checkout-items');
+        const totalSpan = document.getElementById('checkout-total');
+        const finalTotal = document.getElementById('final-total');
+
+        if (cart.length === 0) {
+            window.location.href = '/';
+            return;
+        }
+
+        let total = 0;
+        itemsContainer.innerHTML = ''; // Limpiar
+        cart.forEach(item => {
+            const itemTotal = item.price * item.quantity;
+            total += itemTotal;
+            itemsContainer.innerHTML += `
+                <div class="d-flex justify-content-between mb-2 small">
+                    <span class="text-muted">${item.name} (x${item.quantity})</span>
+                    <span class="fw-bold">S/ ${itemTotal.toFixed(2)}</span>
+                </div>
+            `;
+        });
+
+        totalSpan.innerText = total.toFixed(2);
+        finalTotal.innerText = `S/ ${total.toFixed(2)}`;
+
+        // Máscara para el número de tarjeta (espacios cada 4 dígitos)
+        document.getElementById('cardNum').addEventListener('input', function (e) {
+            e.target.value = e.target.value.replace(/[^\d]/g, '').replace(/(.{4})/g, '$1 ').trim();
+        });
+
+        // Máscara para la fecha (slash después de 2 dígitos)
+        document.getElementById('cardExp').addEventListener('input', function (e) {
+            e.target.value = e.target.value.replace(/[^\d]/g, '').replace(/(.{2})/, '$1/').trim();
+        });
+
+        // Validación y Envío
+        document.getElementById('paymentForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+            
+            const cardNum = document.getElementById('cardNum').value.replace(/\s/g, '');
+            const cardExp = document.getElementById('cardExp').value;
+            const cardCvv = document.getElementById('cardCvv').value;
+
+            // Validación simple
+            if (cardNum.length !== 16) {
+                document.getElementById('cardError').classList.remove('d-none');
+                return;
+            } else {
+                document.getElementById('cardError').classList.add('d-none');
+            }
+
+            // Simulación de procesamiento
+            const modal = new bootstrap.Modal(document.getElementById('processingModal'));
+            modal.show();
+
+            const orderId = Math.floor(Math.random() * 9000 + 1000);
+
+            setTimeout(async () => {
+                const cart = JSON.parse(localStorage.getItem('cart')) || [];
+                const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+                let c_id = 1; // Cliente genérico por defecto en DB
+                if (currentUser && currentUser.id && typeof currentUser.id === 'number') { c_id = currentUser.id; }
+
+                const payload = {
+                    cliente_id: c_id,
+                    total_venta: parseFloat(document.getElementById('final-total').innerText.replace('S/ ', '')),
+                    metodo_pago: 'Tarjeta',
+                    direccion_envio: document.querySelector('input[placeholder="Av. Ejemplo 123, Lima"]').value || 'Tienda',
+                    detalles: cart.map(item => ({
+                        id: item.id,
+                        cantidad: item.quantity,
+                        precio: item.price
+                    }))
+                };
+
+                try {
+                    const res = await fetch('/api/ventas', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    const data = await res.json();
+                    
+                    if (data.success) {
+                        // Capa de compatibilidad para historial local y boleta.ejs
+                        const sales = JSON.parse(localStorage.getItem('sales')) || [];
+                        sales.push({
+                            id: data.codigo_boleta,
+                            customer: document.getElementById('cust-name').value + ' ' + document.getElementById('cust-lastname').value,
+                            total: payload.total_venta,
+                            date: new Date().toLocaleString(),
+                            status: 'Completado',
+                            items: cart
+                        });
+                        localStorage.setItem('sales', JSON.stringify(sales));
+
+                        modal.hide();
+                        localStorage.removeItem('cart');
+                        window.location.href = '/boleta/' + data.codigo_boleta.replace('ORD-', '');
+                    } else {
+                        alert('Error al registrar la venta en la nube');
+                        modal.hide();
+                    }
+                } catch (error) {
+                    alert('Error de conexión');
+                    modal.hide();
+                }
+            }, 3000);
+        });
+    });
+</script>
+
+<%- include('footer') %>

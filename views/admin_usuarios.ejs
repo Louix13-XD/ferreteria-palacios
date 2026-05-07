@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <style>
+        body { background-color: #f0f2f5; font-family: 'Inter', sans-serif; }
+        .admin-sidebar { width: 250px; height: 100vh; position: fixed; background: #212529; color: white; }
+        .admin-content { margin-left: 250px; padding: 30px; }
+        .nav-link-admin { color: rgba(255,255,255,0.7); padding: 15px 25px; display: block; text-decoration: none; border-left: 4px solid transparent; }
+        .nav-link-admin:hover, .nav-link-admin.active { color: #ffc107; background: rgba(255,193,7,0.1); border-left-color: #ffc107; }
+        .user-avatar { width: 40px; height: 40px; object-fit: cover; border-radius: 50%; }
+    </style>
+    <link rel="icon" type="image/png" href="/img/logo_ferreteria.png">
+</head>
+<body>
+
+    <%- include('admin_sidebar') %>
+
+    <main class="admin-content">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2 class="fw-bold">Gestión de Usuarios</h2>
+                <p class="text-muted">Cuentas creadas por clientes desde la tienda.</p>
+            </div>
+            <div class="bg-white p-3 rounded-4 shadow-sm">
+                <span class="text-muted small fw-bold text-uppercase d-block">Total Clientes</span>
+                <h4 class="fw-bold mb-0" id="total-clients-count">0</h4>
+            </div>
+        </div>
+
+        <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+            <div class="p-4 bg-white border-bottom">
+                <h5 class="fw-bold mb-0">Listado de Clientes Registrados</h5>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="bg-light">
+                        <tr class="small text-uppercase text-muted">
+                            <th class="ps-4">Cliente</th>
+                            <th>Correo Electrónico</th>
+                            <th>Estado</th>
+                            <th class="text-end pe-4">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="clients-table-body">
+                        <!-- Carga dinámica -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            renderClients();
+        });
+
+        function renderClients() {
+            const users = JSON.parse(localStorage.getItem('registeredUsers')) || [];
+            const tbody = document.getElementById('clients-table-body');
+            document.getElementById('total-clients-count').innerText = users.length;
+            
+            tbody.innerHTML = '';
+
+            if(users.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" class="text-center py-5 text-muted">No hay clientes registrados todavía.</td></tr>';
+                return;
+            }
+
+            users.forEach((user, index) => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td class="ps-4">
+                            <div class="d-flex align-items-center">
+                                <img src="https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=ffc107&color=212529" class="user-avatar me-3 shadow-sm">
+                                <div>
+                                    <p class="fw-bold mb-0">${user.name}</p>
+                                    <small class="text-muted text-uppercase" style="font-size: 10px;">Cuenta Cliente</small>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="text-muted">${user.email}</td>
+                        <td><span class="badge bg-success bg-opacity-10 text-success px-3 rounded-pill">Activo</span></td>
+                        <td class="text-end pe-4">
+                            <button class="btn btn-sm btn-outline-dark me-1" title="Ver detalles"><i class="bi bi-eye"></i></button>
+                            <button class="btn btn-sm btn-outline-danger" onclick="deleteClient(${index})" title="Bloquear cuenta"><i class="bi bi-shield-slash"></i></button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        function deleteClient(index) {
+            if(confirm('¿Estás seguro de que deseas eliminar la cuenta de este cliente? Esta acción no se puede deshacer.')) {
+                const users = JSON.parse(localStorage.getItem('registeredUsers')) || [];
+                users.splice(index, 1);
+                localStorage.setItem('registeredUsers', JSON.stringify(users));
+                renderClients();
+            }
+        }
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

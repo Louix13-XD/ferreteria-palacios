@@ -1,0 +1,84 @@
+<%- include('header') %>
+
+<main class="container mt-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/" class="text-warning">Inicio</a></li>
+            <li class="breadcrumb-item active text-capitalize" aria-current="page"><%= categoria %></li>
+        </ol>
+    </nav>
+
+    <div class="row">
+        <!-- Filtros Laterales -->
+        <aside class="col-md-3 d-none d-md-block">
+            <div class="card border-0 shadow-sm rounded-4 p-3 mb-4">
+                <h5 class="fw-bold mb-3 border-bottom pb-2">Filtros</h5>
+                
+                <div class="mb-4">
+                    <h6 class="fw-semibold">Precio</h6>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="p1">
+                        <label class="form-check-label" for="p1">S/ 0 - S/ 50</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="p2">
+                        <label class="form-check-label" for="p2">S/ 50 - S/ 200</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="p3">
+                        <label class="form-check-label" for="p3">Más de S/ 200</label>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <h6 class="fw-semibold">Marca</h6>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="m1">
+                        <label class="form-check-label" for="m1">Bosch</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="m2">
+                        <label class="form-check-label" for="m2">Stanley</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="m3">
+                        <label class="form-check-label" for="m3">Makita</label>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Lista de Productos -->
+        <section class="col-md-9">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="fw-bold text-capitalize m-0"><%= categoria %></h2>
+                <div class="dropdown">
+                    <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                        Ordenar por
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="#">Menor precio</a></li>
+                        <li><a class="dropdown-item" href="#">Mayor precio</a></li>
+                        <li><a class="dropdown-item" href="#">Más recientes</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="row row-cols-1 row-cols-md-3 g-4" id="category-products">
+                <!-- Se cargarán con JS dinámicamente -->
+                <div class="col text-center py-5 w-100">
+                    <div class="spinner-border text-warning" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+</main>
+
+<script>
+    // Pasar la categoría de EJS a JS
+    const currentCategory = "<%= categoria %>";
+</script>
+
+<%- include('footer') %>

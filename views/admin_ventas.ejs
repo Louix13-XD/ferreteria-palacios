@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <style>
+        body { background-color: #f0f2f5; font-family: 'Inter', sans-serif; }
+        .admin-sidebar { width: 250px; height: 100vh; position: fixed; background: #212529; color: white; }
+        .admin-content { margin-left: 250px; padding: 30px; }
+        .nav-link-admin { color: rgba(255,255,255,0.7); padding: 15px 25px; display: block; text-decoration: none; border-left: 4px solid transparent; }
+        .nav-link-admin:hover, .nav-link-admin.active { color: #ffc107; background: rgba(255,193,7,0.1); border-left-color: #ffc107; }
+    </style>
+    <link rel="icon" type="image/png" href="/img/logo_ferreteria.png">
+</head>
+<body>
+
+    <%- include('admin_sidebar') %>
+
+    <main class="admin-content">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="fw-bold">Gestión de Ventas</h2>
+            <div class="d-flex gap-2">
+                <button class="btn btn-white shadow-sm border-0"><i class="bi bi-download me-2"></i>Exportar Excel</button>
+            </div>
+        </div>
+
+        <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="bg-light">
+                        <tr class="small text-uppercase text-muted">
+                            <th class="ps-4">ID Venta</th>
+                            <th>Fecha</th>
+                            <th>Cliente</th>
+                            <th>Total</th>
+                            <th>Estado</th>
+                            <th class="text-end pe-4">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="sales-body">
+                        <!-- Ventas dinámicas -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            renderSales();
+        });
+
+        async function renderSales() {
+            const tbody = document.getElementById('sales-body');
+            tbody.innerHTML = '<tr><td colspan="6" class="text-center py-5">Cargando datos desde la nube... <div class="spinner-border spinner-border-sm text-warning ms-2"></div></td></tr>';
+
+            try {
+                const res = await fetch('/api/ventas');
+                const data = await res.json();
+                
+                if (data.success) {
+                    tbody.innerHTML = '';
+                    if (data.ventas.length === 0) {
+                        tbody.innerHTML = '<tr><td colspan="6" class="text-center py-5 text-muted">No hay ventas registradas todavía.</td></tr>';
+                        return;
+                    }
+
+                    data.ventas.forEach((sale) => {
+                        const date = new Date(sale.fecha_compra).toLocaleString();
+                        tbody.innerHTML += `
+                            <tr>
+                                <td class="ps-4 fw-bold">${sale.codigo_boleta}</td>
+                                <td>${date}</td>
+                                <td>${sale.cliente_nombre}</td>
+                                <td class="fw-bold text-dark">S/ ${parseFloat(sale.total_venta).toFixed(2)}</td>
+                                <td><span class="badge bg-success bg-opacity-10 text-success px-3">${sale.estado_pedido}</span></td>
+                                <td class="text-end pe-4">
+                                    <a href="/boleta/${sale.codigo_boleta.replace('ORD-', '')}" class="btn btn-sm btn-outline-warning"><i class="bi bi-file-earmark-text me-1"></i>Ver Boleta</a>
+                                    <button class="btn btn-sm btn-outline-danger" onclick="deleteSale(${sale.id})"><i class="bi bi-trash"></i></button>
+                                </td>
+                            </tr>
+                        `;
+                    });
+                }
+            } catch (error) {
+                tbody.innerHTML = `<tr><td colspan="6" class="text-center py-5 text-danger">Error conectando con PostgreSQL en Render.</td></tr>`;
+            }
+        }
+
+        async function deleteSale(id) {
+            if(confirm('¿Deseas eliminar este registro de venta DEFINITIVAMENTE de la base de datos?')) {
+                try {
+                    await fetch('/api/ventas/' + id, { method: 'DELETE' });
+                    renderSales();
+                } catch(err) { alert('Error al eliminar'); }
+            }
+        }
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
