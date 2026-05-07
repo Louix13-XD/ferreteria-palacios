@@ -74,11 +74,16 @@
     </main>
 
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const sales = JSON.parse(localStorage.getItem('sales')) || [];
+        document.addEventListener('DOMContentLoaded', async () => {
+            let sales = [];
+            try {
+                const res = await fetch('/api/ventas');
+                const data = await res.json();
+                if(data.success) sales = data.ventas;
+            } catch(e) { console.error("Error al obtener ventas", e); }
             
             // Cálculos
-            const gross = sales.reduce((acc, s) => acc + s.total, 0);
+            const gross = sales.reduce((acc, s) => acc + parseFloat(s.total_venta || 0), 0);
             const net = gross / 1.18;
             const totalIgv = gross - net;
 
@@ -92,7 +97,7 @@
             // Simular datos por mes basados en las ventas reales del mes actual
             const currentMonth = new Date().getMonth();
             const monthlyData = new Array(12).fill(0);
-            monthlyData[currentMonth] = total;
+            monthlyData[currentMonth] = gross; // Fixed error 'total' variable not found
 
             new Chart(ctxGrowth, {
                 type: 'bar',

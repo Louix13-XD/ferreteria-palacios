@@ -282,6 +282,63 @@ app.get('/api/ventas', async (req, res) => {
     }
 });
 
+app.get('/api/ventas/detalle/:codigo', async (req, res) => {
+    try {
+        const result = await db.query(`
+            SELECT v.*, u.nombre_completo as cliente_nombre 
+            FROM ventas v 
+            JOIN usuarios u ON v.cliente_id = u.id 
+            WHERE v.codigo_boleta = $1
+        `, [req.params.codigo]);
+        
+        if (result.rows.length === 0) {
+            return res.json({ success: false, message: 'Venta no encontrada' });
+        }
+        
+        const venta = result.rows[0];
+        
+        const detallesResult = await db.query(`
+            SELECT dv.*, p.nombre as producto_nombre 
+            FROM detalle_ventas dv 
+            JOIN productos p ON dv.producto_id = p.id 
+            WHERE dv.venta_id = $1
+        `, [venta.id]);
+        
+        venta.items = detallesResult.rows;
+        res.json({ success: true, venta });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ success: false });
+    }
+});
+
+app.get('/api/ventas/cliente/:clienteId', async (req, res) => {
+    try {
+        const result = await db.query(`
+            SELECT * FROM ventas 
+            WHERE cliente_id = $1 
+            ORDER BY id DESC
+        `, [req.params.clienteId]);
+        
+        const ventas = result.rows;
+        
+        for (let i = 0; i < ventas.length; i++) {
+            const detallesResult = await db.query(`
+                SELECT dv.*, p.nombre as producto_nombre, p.imagen_url as img
+                FROM detalle_ventas dv 
+                JOIN productos p ON dv.producto_id = p.id 
+                WHERE dv.venta_id = $1
+            `, [ventas[i].id]);
+            ventas[i].items = detallesResult.rows;
+        }
+        
+        res.json({ success: true, ventas: ventas });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ success: false });
+    }
+});
+
 app.delete('/api/ventas/:id', async (req, res) => {
     try {
         await db.query('DELETE FROM ventas WHERE id=$1', [req.params.id]);

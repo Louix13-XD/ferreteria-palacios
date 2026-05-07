@@ -185,18 +185,6 @@
                     const data = await res.json();
                     
                     if (data.success) {
-                        // Capa de compatibilidad para historial local y boleta.ejs
-                        const sales = JSON.parse(localStorage.getItem('sales')) || [];
-                        sales.push({
-                            id: data.codigo_boleta,
-                            customer: document.getElementById('cust-name').value + ' ' + document.getElementById('cust-lastname').value,
-                            total: payload.total_venta,
-                            date: new Date().toLocaleString(),
-                            status: 'Completado',
-                            items: cart
-                        });
-                        localStorage.setItem('sales', JSON.stringify(sales));
-
                         modal.hide();
                         localStorage.removeItem('cart');
                         window.location.href = '/boleta/' + data.codigo_boleta.replace('ORD-', '');

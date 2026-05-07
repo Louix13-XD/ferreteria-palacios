@@ -105,60 +105,76 @@
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', async () => {
             const orderId = '<%= orderId %>';
-            const sales = JSON.parse(localStorage.getItem('sales')) || [];
-            const sale = sales.find(s => s.id === 'ORD-' + orderId);
-
-            if (!sale) {
-                document.getElementById('invoice-content').innerHTML = `
-                    <div class="text-center py-5">
-                        <i class="bi bi-exclamation-circle fs-1 text-danger"></i>
-                        <h4 class="mt-3">No se encontró la información del pedido.</h4>
-                    </div>
-                `;
-                return;
-            }
-
-            // Llenar cabecera
-            document.getElementById('invoice-id').innerText = 'B001-' + orderId;
-            document.getElementById('invoice-date').innerText = 'Fecha: ' + sale.date.split(',')[0];
-            document.getElementById('client-name').innerText = sale.customer;
-
-            // Llenar items
-            const itemsContainer = document.getElementById('invoice-items');
-            itemsContainer.innerHTML = '';
+            const fullCode = 'ORD-' + orderId;
             
-            let totalBase = 0;
+            try {
+                const res = await fetch('/api/ventas/detalle/' + fullCode);
+                const data = await res.json();
+                
+                if (!data.success || !data.venta) {
+                    showError();
+                    return;
+                }
 
-            sale.items.forEach(item => {
-                // Si por alguna razón no tiene basePrice, lo calculamos
-                const basePrice = item.basePrice || (item.price / 1.18);
-                const lineSubtotal = basePrice * item.quantity;
-                totalBase += lineSubtotal;
+                const sale = data.venta;
 
-                itemsContainer.innerHTML += `
-                    <tr>
-                        <td>
-                            <div class="fw-bold text-dark">${item.name}</div>
-                            <small class="text-muted">Cod: ${item.id}</small>
-                        </td>
-                        <td class="text-center">${item.quantity}</td>
-                        <td class="text-end">S/ ${basePrice.toFixed(2)}</td>
-                        <td class="text-end">S/ ${lineSubtotal.toFixed(2)}</td>
-                    </tr>
-                `;
-            });
+                // Llenar cabecera
+                document.getElementById('invoice-id').innerText = 'B001-' + orderId;
+                const dateObj = new Date(sale.fecha_compra);
+                document.getElementById('invoice-date').innerText = 'Fecha: ' + dateObj.toLocaleDateString();
+                document.getElementById('client-name').innerText = sale.cliente_nombre || 'Cliente';
 
-            // Cálculos finales basados en el Subtotal
-            const subtotal = totalBase;
-            const igv = subtotal * 0.18;
-            const totalFinal = subtotal + igv;
+                // Llenar items
+                const itemsContainer = document.getElementById('invoice-items');
+                itemsContainer.innerHTML = '';
+                
+                let totalBase = 0;
 
-            document.getElementById('subtotal').innerText = 'S/ ' + subtotal.toFixed(2);
-            document.getElementById('igv').innerText = 'S/ ' + igv.toFixed(2);
-            document.getElementById('total').innerText = 'S/ ' + totalFinal.toFixed(2);
+                (sale.items || []).forEach(item => {
+                    const price = parseFloat(item.precio_unitario);
+                    const qty = parseInt(item.cantidad);
+                    const basePrice = price / 1.18;
+                    const lineSubtotal = basePrice * qty;
+                    totalBase += lineSubtotal;
+
+                    itemsContainer.innerHTML += `
+                        <tr>
+                            <td>
+                                <div class="fw-bold text-dark">${item.producto_nombre || 'Producto'}</div>
+                                <small class="text-muted">Cod: ${item.producto_id}</small>
+                            </td>
+                            <td class="text-center">${qty}</td>
+                            <td class="text-end">S/ ${basePrice.toFixed(2)}</td>
+                            <td class="text-end">S/ ${lineSubtotal.toFixed(2)}</td>
+                        </tr>
+                    `;
+                });
+
+                // Cálculos finales
+                const subtotal = totalBase;
+                const igv = subtotal * 0.18;
+                const totalFinal = subtotal + igv;
+
+                document.getElementById('subtotal').innerText = 'S/ ' + subtotal.toFixed(2);
+                document.getElementById('igv').innerText = 'S/ ' + igv.toFixed(2);
+                document.getElementById('total').innerText = 'S/ ' + totalFinal.toFixed(2);
+
+            } catch(e) {
+                console.error(e);
+                showError();
+            }
         });
+
+        function showError() {
+            document.getElementById('invoice-content').innerHTML = `
+                <div class="text-center py-5">
+                    <i class="bi bi-exclamation-circle fs-1 text-danger"></i>
+                    <h4 class="mt-3">No se encontró la información del pedido.</h4>
+                </div>
+            `;
+        }
     </script>
 </body>
 </html>

@@ -135,11 +135,21 @@
     </main>
 
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const sales = JSON.parse(localStorage.getItem('sales')) || [];
-            const products = JSON.parse(localStorage.getItem('products')) || [];
+        document.addEventListener('DOMContentLoaded', async () => {
+            let sales = [];
+            let products = [];
             
-            const gross = sales.reduce((acc, s) => acc + s.total, 0);
+            try {
+                const resS = await fetch('/api/ventas');
+                const dataS = await resS.json();
+                if(dataS.success) sales = dataS.ventas;
+
+                const resP = await fetch('/api/productos');
+                const dataP = await resP.json();
+                if(dataP.success) products = dataP.productos;
+            } catch(e) { console.error("Error conectando a BD:", e); }
+            
+            const gross = sales.reduce((acc, s) => acc + parseFloat(s.total_venta || 0), 0);
             const net = gross / 1.18;
 
             document.getElementById('stat-sales-today').innerText = `S/ ${gross.toFixed(2)}`;
@@ -154,24 +164,29 @@
             if(sales.length === 0) {
                 tbody.innerHTML = '<tr><td colspan="4" class="text-center py-4 text-muted">No hay ventas registradas.</td></tr>';
             } else {
-                sales.reverse().slice(0, 5).forEach(sale => {
+                sales.slice(0, 5).forEach(sale => {
+                    const custName = sale.cliente_nombre || 'Desconocido';
+                    const code = sale.codigo_boleta || 'ORD-000';
+                    const total = parseFloat(sale.total_venta || 0);
+                    const status = sale.estado_pedido || 'Completado';
+                    
                     tbody.innerHTML += `
                         <tr>
                             <td class="ps-4">
                                 <div class="d-flex align-items-center">
                                     <div class="bg-dark text-white rounded-circle me-3 d-flex align-items-center justify-content-center" style="width: 35px; height: 35px; font-size: 12px; font-weight: bold;">
-                                        ${sale.customer.substring(0, 2).toUpperCase()}
+                                        ${custName.substring(0, 2).toUpperCase()}
                                     </div>
                                     <div>
-                                        <p class="fw-bold mb-0">${sale.customer}</p>
-                                        <small class="text-muted">${sale.id}</small>
+                                        <p class="fw-bold mb-0">${custName}</p>
+                                        <small class="text-muted">${code}</small>
                                     </div>
                                 </div>
                             </td>
-                            <td><span class="fw-bold">S/ ${sale.total.toFixed(2)}</span></td>
-                            <td><span class="badge bg-success bg-opacity-10 text-success px-3">${sale.status}</span></td>
+                            <td><span class="fw-bold">S/ ${total.toFixed(2)}</span></td>
+                            <td><span class="badge bg-success bg-opacity-10 text-success px-3">${status}</span></td>
                             <td class="text-end pe-4">
-                                <a href="/boleta/${sale.id.replace('ORD-', '')}" class="btn btn-light btn-sm"><i class="bi bi-eye"></i></a>
+                                <a href="/boleta/${code.replace('ORD-', '')}" class="btn btn-light btn-sm"><i class="bi bi-eye"></i></a>
                             </td>
                         </tr>
                     `;
@@ -195,15 +210,15 @@
             });
 
             const cats = {};
-            products.forEach(p => cats[p.category] = (cats[p.category] || 0) + p.stock);
+            products.forEach(p => cats[p.categoria] = (cats[p.categoria] || 0) + p.stock);
             
             const ctxCat = document.getElementById('categoryChart').getContext('2d');
             new Chart(ctxCat, {
                 type: 'doughnut',
                 data: {
-                    labels: Object.keys(cats),
+                    labels: Object.keys(cats).length > 0 ? Object.keys(cats) : ['Sin Stock'],
                     datasets: [{
-                        data: Object.values(cats),
+                        data: Object.keys(cats).length > 0 ? Object.values(cats) : [1],
                         backgroundColor: ['#ffc107', '#212529', '#0d6efd', '#198754'],
                         borderWidth: 0
                     }]
