@@ -146,7 +146,7 @@
 
                 const resP = await fetch('/api/productos');
                 const dataP = await resP.json();
-                if(dataP.success) products = dataP.productos;
+                if(dataP.success) products = dataP.products;
             } catch(e) { console.error("Error conectando a BD:", e); }
             
             const gross = sales.reduce((acc, s) => acc + parseFloat(s.total_venta || 0), 0);

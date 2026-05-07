@@ -151,17 +151,16 @@ function showToast(message, color = "success", icon = "bi-check-circle") {
     setTimeout(() => toast.remove(), 3000);
 }
 
-// --- INICIALIZACIÓN ---
 document.addEventListener('DOMContentLoaded', async () => {
     try {
         const res = await fetch('/api/productos');
         const data = await res.json();
         if (data.success) {
-            storeProducts = data.productos.map(p => ({
+            storeProducts = data.products.map(p => ({
                 id: p.id,
                 name: p.nombre,
-                category: p.categoria,
-                price: parseFloat(p.precio),
+                category: p.category_name,
+                price: parseFloat(p.precio_final),
                 stock: p.stock,
                 img: p.imagen_url || '/img/default_product.png'
             }));

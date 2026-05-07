@@ -157,7 +157,7 @@
             const res = await fetch('/api/productos');
             const data = await res.json();
             if (data.success) {
-                const originalProduct = data.productos.find(p => p.id == item.id);
+                const originalProduct = data.products.find(p => p.id == item.id);
                 if (originalProduct) {
                     stockDisponible = originalProduct.stock;
                 }
