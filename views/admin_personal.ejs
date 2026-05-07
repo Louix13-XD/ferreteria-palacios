@@ -176,69 +176,68 @@
     </div>
 
     <script>
+        let allWorkers = [];
+
         document.addEventListener('DOMContentLoaded', () => {
             const currentUser = JSON.parse(localStorage.getItem('currentUser'));
-            
-            if (!currentUser) {
-                window.location.href = '/login';
-                return;
-            }
-
-            // 1. Restricción de acceso para trabajadores normales
+            if (!currentUser) { window.location.href = '/login'; return; }
             if (currentUser.role && currentUser.role.includes('Trabajador')) {
-                alert('No tienes permisos para acceder a la gestión de personal.');
-                window.location.href = '/admin';
-                return;
+                alert('No tienes permisos.'); window.location.href = '/admin'; return;
             }
 
-            // 2. Mostrar botón de creación SOLO para Admin
             const createBtn = document.getElementById('btn-add-worker');
-            if (createBtn) {
-                if (currentUser.role === 'admin' || currentUser.role === 'Admin') {
-                    createBtn.classList.remove('d-none');
-                }
+            if (createBtn && (currentUser.role === 'admin' || currentUser.role === 'Admin')) {
+                createBtn.classList.remove('d-none');
             }
 
-            renderWorkers();
+            fetchWorkers();
         });
+
+        async function fetchWorkers() {
+            try {
+                const res = await fetch('/api/usuarios');
+                const data = await res.json();
+                if (data.success) {
+                    allWorkers = data.usuarios;
+                    renderWorkers();
+                }
+            } catch (e) {
+                console.error('Error al cargar usuarios:', e);
+            }
+        }
 
         function renderWorkers() {
             const currentUser = JSON.parse(localStorage.getItem('currentUser'));
-            const allWorkers = JSON.parse(localStorage.getItem('workers')) || [];
             const tbody = document.getElementById('workers-table-body');
-            
-            // 3. Filtrado por rol
-            let filteredWorkers = allWorkers;
-            if (currentUser.role === 'Admin' || currentUser.role === 'admin') {
-                filteredWorkers = allWorkers;
-            } else {
-                // Si por alguna razón hay otro rol, solo ve trabajadores
-                filteredWorkers = allWorkers.filter(w => w.role === 'Trabajador');
-            }
-
             tbody.innerHTML = '';
 
-            filteredWorkers.forEach((worker, index) => {
+            let filtered = allWorkers;
+            if (currentUser.role !== 'Admin' && currentUser.role !== 'admin') {
+                filtered = allWorkers.filter(w => w.rol === 'Trabajador_Ventas' || w.rol === 'Trabajador_Almacen');
+            }
+
+            filtered.forEach((worker, index) => {
+                const roleDisplay = worker.rol === 'Admin' ? 'Administrador' : 'Trabajador';
                 tbody.innerHTML += `
                     <tr>
                         <td class="ps-4">
                             <div class="d-flex align-items-center">
-                                <img src="https://ui-avatars.com/api/?name=${encodeURIComponent(worker.name)}&background=random" class="user-avatar me-3 shadow-sm">
+                                <img src="https://ui-avatars.com/api/?name=${encodeURIComponent(worker.nombre_completo)}&background=random" class="user-avatar me-3 shadow-sm">
                                 <div>
-                                    <p class="fw-bold mb-0">${worker.name}</p>
-                                    <small class="text-muted">ID: #${worker.id}</small>
+                                    <p class="fw-bold mb-0">${worker.nombre_completo}</p>
+                                    <small class="text-muted">ID: ${worker.codigo_interno || worker.id}</small>
                                 </div>
                             </div>
                         </td>
-                        <td><span class="badge bg-primary bg-opacity-10 text-primary px-3 fw-bold">${worker.role}</span></td>
+                        <td><span class="badge bg-primary bg-opacity-10 text-primary px-3 fw-bold">${roleDisplay}</span></td>
                         <td class="text-muted">${worker.email}</td>
                         <td class="text-muted">${worker.dni || '---'}</td>
-                        <td class="text-muted">${worker.phone || '---'}</td>
-                        <td><span class="badge bg-success rounded-pill px-3">Activo</span></td>
+                        <td class="text-muted">${worker.celular || '---'}</td>
+                        <td><span class="badge bg-success rounded-pill px-3">${worker.estado || 'Activo'}</span></td>
                         <td class="text-end pe-4">
                             ${currentUser.role === 'admin' || currentUser.role === 'Admin' ? `
-                                <button class="btn btn-sm btn-outline-dark me-1" onclick="openEditWorker(${index})"><i class="bi bi-pencil"></i></button>
-                                <button class="btn btn-sm btn-outline-danger" onclick="deleteWorker(${index})"><i class="bi bi-trash"></i></button>
+                                <button class="btn btn-sm btn-outline-dark me-1" onclick="openEditWorker(${worker.id})"><i class="bi bi-pencil"></i></button>
+                                <button class="btn btn-sm btn-outline-danger" onclick="deleteWorker(${worker.id})"><i class="bi bi-trash"></i></button>
                             ` : '<span class="text-muted small">Solo lectura</span>'}
                         </td>
                     </tr>
@@ -246,90 +245,103 @@
             });
         }
 
-        document.getElementById('formNuevoTrabajador').addEventListener('submit', function(e) {
+        document.getElementById('formNuevoTrabajador').addEventListener('submit', async function(e) {
             e.preventDefault();
-            const workers = JSON.parse(localStorage.getItem('workers')) || [];
-            const role = document.getElementById('work-role').value;
-            
-            const prefix = role === 'Admin' ? 'FP-ADMIN-' : 'FP-TRBJ-';
-            const count = workers.filter(w => w.role === role).length + 1;
+            const btn = this.querySelector('button[type="submit"]');
+            btn.disabled = true;
+
+            const roleVal = document.getElementById('work-role').value; // 'Admin' o 'Trabajador'
+            const dbRol = roleVal === 'Trabajador' ? 'Trabajador_Ventas' : 'Admin';
+            const prefix = roleVal === 'Admin' ? 'FP-ADMIN-' : 'FP-TRBJ-';
+            const count = allWorkers.filter(w => w.rol === dbRol).length + 1;
             const code = prefix + count.toString().padStart(4, '0');
 
-            const newWorker = {
-                id: code,
-                name: document.getElementById('work-name').value,
+            const payload = {
+                codigo_interno: code,
+                nombre_completo: document.getElementById('work-name').value,
                 username: document.getElementById('work-user').value,
                 dni: document.getElementById('work-dni').value,
                 email: document.getElementById('work-email').value,
-                phone: document.getElementById('work-phone').value,
-                zone: document.getElementById('work-zone').value,
-                role: role,
-                pass: document.getElementById('work-pass').value
+                celular: document.getElementById('work-phone').value,
+                direccion_zona: document.getElementById('work-zone').value,
+                password: document.getElementById('work-pass').value,
+                rol: dbRol
             };
 
-            workers.push(newWorker);
-            localStorage.setItem('workers', JSON.stringify(workers));
-            
-            bootstrap.Modal.getInstance(document.getElementById('modalNuevoUsuario')).hide();
-            this.reset();
-            renderWorkers();
-            alert('Nuevo trabajador registrado en el sistema.');
+            try {
+                const res = await fetch('/api/usuarios', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+                if (data.success) {
+                    bootstrap.Modal.getInstance(document.getElementById('modalNuevoUsuario')).hide();
+                    this.reset();
+                    fetchWorkers();
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            } catch(e) { alert('Error de conexión'); }
+            btn.disabled = false;
         });
 
-        function openEditWorker(index) {
-            const workers = JSON.parse(localStorage.getItem('workers')) || [];
-            const w = workers[index];
+        function openEditWorker(id) {
+            const w = allWorkers.find(x => x.id === id);
             if(!w) return;
 
-            document.getElementById('edit-work-index').value = index;
             document.getElementById('edit-work-id').value = w.id;
-            document.getElementById('edit-work-name').value = w.name;
+            document.getElementById('edit-work-name').value = w.nombre_completo;
             document.getElementById('edit-work-user').value = w.username || '';
             document.getElementById('edit-work-dni').value = w.dni || '';
             document.getElementById('edit-work-email').value = w.email || '';
-            document.getElementById('edit-work-phone').value = w.phone || '';
-            document.getElementById('edit-work-role').value = w.role || '';
-            document.getElementById('edit-work-zone').value = w.zone || '';
+            document.getElementById('edit-work-phone').value = w.celular || '';
+            document.getElementById('edit-work-role').value = w.rol === 'Admin' ? 'Admin' : 'Trabajador';
+            document.getElementById('edit-work-zone').value = w.direccion_zona || '';
             document.getElementById('edit-work-pass').value = '';
 
             const modal = new bootstrap.Modal(document.getElementById('modalEditarUsuario'));
             modal.show();
         }
 
-        document.getElementById('formEditarTrabajador').addEventListener('submit', function(e) {
+        document.getElementById('formEditarTrabajador').addEventListener('submit', async function(e) {
             e.preventDefault();
-            const index = document.getElementById('edit-work-index').value;
-            const workers = JSON.parse(localStorage.getItem('workers')) || [];
-            
-            const w = workers[index];
-            if(!w) return;
+            const id = document.getElementById('edit-work-id').value;
+            const roleVal = document.getElementById('edit-work-role').value;
+            const dbRol = roleVal === 'Trabajador' ? 'Trabajador_Ventas' : 'Admin';
 
-            w.name = document.getElementById('edit-work-name').value;
-            w.username = document.getElementById('edit-work-user').value;
-            w.dni = document.getElementById('edit-work-dni').value;
-            w.email = document.getElementById('edit-work-email').value;
-            w.phone = document.getElementById('edit-work-phone').value;
-            w.role = document.getElementById('edit-work-role').value;
-            w.zone = document.getElementById('edit-work-zone').value;
-            
-            const pass = document.getElementById('edit-work-pass').value;
-            if(pass.trim() !== '') {
-                w.pass = pass;
-            }
+            const payload = {
+                nombre_completo: document.getElementById('edit-work-name').value,
+                username: document.getElementById('edit-work-user').value,
+                dni: document.getElementById('edit-work-dni').value,
+                email: document.getElementById('edit-work-email').value,
+                celular: document.getElementById('edit-work-phone').value,
+                direccion_zona: document.getElementById('edit-work-zone').value,
+                rol: dbRol,
+                password: document.getElementById('edit-work-pass').value
+            };
 
-            localStorage.setItem('workers', JSON.stringify(workers));
-            
-            bootstrap.Modal.getInstance(document.getElementById('modalEditarUsuario')).hide();
-            renderWorkers();
-            alert('Cambios guardados correctamente.');
+            try {
+                const res = await fetch('/api/usuarios/' + id, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                if ((await res.json()).success) {
+                    bootstrap.Modal.getInstance(document.getElementById('modalEditarUsuario')).hide();
+                    fetchWorkers();
+                }
+            } catch(e) { alert('Error de red'); }
         });
 
-        function deleteWorker(index) {
-            if(confirm('¿Seguro que deseas eliminar a este trabajador?')) {
-                const workers = JSON.parse(localStorage.getItem('workers')) || [];
-                workers.splice(index, 1);
-                localStorage.setItem('workers', JSON.stringify(workers));
-                renderWorkers();
+        async function deleteWorker(id) {
+            if(confirm('¿Seguro que deseas eliminar a este usuario?')) {
+                try {
+                    const res = await fetch('/api/usuarios/' + id, { method: 'DELETE' });
+                    if ((await res.json()).success) {
+                        fetchWorkers();
+                    }
+                } catch(e) { alert('Error al eliminar'); }
             }
         }
     </script>

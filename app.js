@@ -292,6 +292,67 @@ app.delete('/api/ventas/:id', async (req, res) => {
     }
 });
 
+// --- APIS DE USUARIOS / PERSONAL ---
+app.get('/api/usuarios', async (req, res) => {
+    try {
+        const result = await db.query("SELECT * FROM usuarios WHERE rol != 'Cliente' ORDER BY id DESC");
+        res.json({ success: true, usuarios: result.rows });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ success: false });
+    }
+});
+
+app.post('/api/usuarios', async (req, res) => {
+    try {
+        const { codigo_interno, nombre_completo, username, email, dni, celular, direccion_zona, password, rol } = req.body;
+        const hashedPassword = await bcrypt.hash(password, 10);
+        await db.query(
+            `INSERT INTO usuarios (codigo_interno, nombre_completo, username, email, dni, celular, direccion_zona, password, rol)
+             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
+            [codigo_interno, nombre_completo, username, email, dni, celular, direccion_zona, hashedPassword, rol]
+        );
+        res.json({ success: true, message: 'Usuario creado' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ success: false, message: 'Error al crear usuario' });
+    }
+});
+
+app.put('/api/usuarios/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { nombre_completo, username, email, dni, celular, direccion_zona, rol, password } = req.body;
+        
+        if (password && password.trim() !== '') {
+            const hashedPassword = await bcrypt.hash(password, 10);
+            await db.query(
+                `UPDATE usuarios SET nombre_completo=$1, username=$2, email=$3, dni=$4, celular=$5, direccion_zona=$6, rol=$7, password=$8 WHERE id=$9`,
+                [nombre_completo, username, email, dni, celular, direccion_zona, rol, hashedPassword, id]
+            );
+        } else {
+            await db.query(
+                `UPDATE usuarios SET nombre_completo=$1, username=$2, email=$3, dni=$4, celular=$5, direccion_zona=$6, rol=$7 WHERE id=$8`,
+                [nombre_completo, username, email, dni, celular, direccion_zona, rol, id]
+            );
+        }
+        res.json({ success: true, message: 'Usuario actualizado' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ success: false, message: 'Error al actualizar usuario' });
+    }
+});
+
+app.delete('/api/usuarios/:id', async (req, res) => {
+    try {
+        await db.query('DELETE FROM usuarios WHERE id=$1', [req.params.id]);
+        res.json({ success: true });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ success: false });
+    }
+});
+
 app.listen(PORT, () => {
     console.log(`Servidor corriendo en http://localhost:${PORT}`);
 });
