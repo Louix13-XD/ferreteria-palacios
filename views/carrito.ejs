@@ -145,19 +145,27 @@
         totalEl.innerText = `S/ ${total.toFixed(2)}`;
     }
 
-    function changeQty(index, delta) {
+    async function changeQty(index, delta) {
         const item = cart[index];
         const newQty = item.quantity + delta;
 
         // Validaciones
         if (newQty < 1) return;
         
-        // Obtener stock real del store
-        const products = JSON.parse(localStorage.getItem('products')) || [];
-        const originalProduct = products.find(p => p.id == item.id);
+        let stockDisponible = 999; // Default if API fails
+        try {
+            const res = await fetch('/api/productos');
+            const data = await res.json();
+            if (data.success) {
+                const originalProduct = data.productos.find(p => p.id == item.id);
+                if (originalProduct) {
+                    stockDisponible = originalProduct.stock;
+                }
+            }
+        } catch(e) {}
         
-        if (originalProduct && newQty > originalProduct.stock) {
-            alert(`Lo sentimos, solo quedan ${originalProduct.stock} unidades de este producto.`);
+        if (newQty > stockDisponible) {
+            alert(`Lo sentimos, solo quedan ${stockDisponible} unidades de este producto.`);
             return;
         }
 

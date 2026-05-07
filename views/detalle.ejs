@@ -18,10 +18,28 @@
         renderProductDetail();
     });
 
-    function renderProductDetail() {
-        const products = JSON.parse(localStorage.getItem('products')) || [];
-        const product = products.find(p => p.id == productId);
+    async function renderProductDetail() {
         const container = document.getElementById('product-detail-container');
+        let product = null;
+
+        try {
+            const res = await fetch('/api/productos');
+            const data = await res.json();
+            if (data.success) {
+                const p = data.productos.find(item => item.id == productId);
+                if (p) {
+                    product = {
+                        id: p.id,
+                        name: p.nombre,
+                        category: p.categoria,
+                        price: parseFloat(p.precio),
+                        stock: p.stock,
+                        img: p.imagen_url || '/img/default_product.png',
+                        description: p.descripcion || ''
+                    };
+                }
+            }
+        } catch (e) { console.error('Error fetching details', e); }
 
         if (!product) {
             container.innerHTML = `

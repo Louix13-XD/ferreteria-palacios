@@ -1,20 +1,7 @@
 // --- BASE DE DATOS TEMPORAL (LocalStorage) ---
 
-// Intentar cargar datos de localStorage, si no existen inicializar vacíos
-if (!localStorage.getItem('products')) {
-    localStorage.setItem('products', JSON.stringify([]));
-}
-if (!localStorage.getItem('workers')) {
-    localStorage.setItem('workers', JSON.stringify([]));
-}
-if (!localStorage.getItem('sales')) {
-    localStorage.setItem('sales', JSON.stringify([]));
-}
-
 // Variables Globales Sincronizadas con la "Base de Datos"
-let storeProducts = JSON.parse(localStorage.getItem('products'));
-let storeSales = JSON.parse(localStorage.getItem('sales'));
-let storeWorkers = JSON.parse(localStorage.getItem('workers'));
+let storeProducts = [];
 let cart = JSON.parse(localStorage.getItem('cart')) || [];
 let favorites = JSON.parse(localStorage.getItem('favorites')) || [];
 
@@ -65,9 +52,9 @@ function renderProducts(products, containerId = 'featured-products') {
                                 <i class="bi bi-x-circle me-2"></i>Sin Stock
                             </button>
                         ` : `
-                            <a href="/producto/${product.id}" class="btn btn-warning w-100 fw-bold shadow-sm">
-                                <i class="bi bi-eye me-2"></i>Ver Producto
-                            </a>
+                            <button class="btn btn-warning w-100 fw-bold shadow-sm" onclick="addToCart(${product.id})">
+                                <i class="bi bi-cart-plus me-2"></i>Al Carrito
+                            </button>
                         `}
                     </div>
                 </div>
@@ -108,7 +95,6 @@ function addToCart(productId, quantity = 1) {
 function updateCartUI() {
     const badge = document.getElementById('cart-badge');
     if (badge) {
-        // El badge muestra el total de unidades, no de filas
         const totalItems = cart.reduce((acc, item) => acc + item.quantity, 0);
         badge.innerText = totalItems;
     }
@@ -129,18 +115,19 @@ function toggleWishlist(productId) {
     localStorage.setItem('favorites', JSON.stringify(favorites));
     updateWishlistUI();
     
-    const btn = event.target.closest('.btn-wishlist');
-    if (btn) {
-        const icon = btn.querySelector('i');
-        icon.classList.toggle('bi-heart');
-        icon.classList.toggle('bi-heart-fill');
-        icon.classList.toggle('text-danger');
+    // Only update icon if it was triggered by a specific button, otherwise reload UI if needed
+    const eventTarget = window.event ? window.event.target : null;
+    if (eventTarget) {
+        const btn = eventTarget.closest('.btn-wishlist');
+        if (btn) {
+            const icon = btn.querySelector('i');
+            if (icon) {
+                icon.classList.toggle('bi-heart');
+                icon.classList.toggle('bi-heart-fill');
+                icon.classList.toggle('text-danger');
+            }
+        }
     }
-}
-
-function updateCartUI() {
-    const badge = document.getElementById('cart-badge');
-    if (badge) badge.innerText = cart.length;
 }
 
 function updateWishlistUI() {
@@ -165,7 +152,24 @@ function showToast(message, color = "success", icon = "bi-check-circle") {
 }
 
 // --- INICIALIZACIÓN ---
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
+    try {
+        const res = await fetch('/api/productos');
+        const data = await res.json();
+        if (data.success) {
+            storeProducts = data.productos.map(p => ({
+                id: p.id,
+                name: p.nombre,
+                category: p.categoria,
+                price: parseFloat(p.precio),
+                stock: p.stock,
+                img: p.imagen_url || '/img/default_product.png'
+            }));
+        }
+    } catch (e) {
+        console.error('Error cargando productos', e);
+    }
+    
     updateCartUI();
     updateWishlistUI();
     
