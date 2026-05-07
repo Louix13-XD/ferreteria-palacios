@@ -98,9 +98,8 @@
                         <div class="mb-3">
                             <label class="form-label fw-bold small">Cargo / Rol</label>
                             <select class="form-select" id="work-role">
-                                <option>Supervisor</option>
-                                <option>Trabajador (Ventas)</option>
-                                <option>Trabajador (Almacén)</option>
+                                <option value="Admin">Administrador</option>
+                                <option value="Trabajador">Trabajador</option>
                             </select>
                         </div>
                         <div class="mb-3">
@@ -157,9 +156,8 @@
                         <div class="mb-3">
                             <label class="form-label fw-bold small">Cargo / Rol</label>
                             <select class="form-select" id="edit-work-role">
-                                <option>Supervisor</option>
-                                <option>Trabajador (Ventas)</option>
-                                <option>Trabajador (Almacén)</option>
+                                <option value="Admin">Administrador</option>
+                                <option value="Trabajador">Trabajador</option>
                             </select>
                         </div>
                         <div class="mb-3">
@@ -211,9 +209,11 @@
             
             // 3. Filtrado por rol
             let filteredWorkers = allWorkers;
-            if (currentUser.role === 'Supervisor') {
-                // El supervisor solo ve a los trabajadores
-                filteredWorkers = allWorkers.filter(w => w.role.includes('Trabajador'));
+            if (currentUser.role === 'Admin' || currentUser.role === 'admin') {
+                filteredWorkers = allWorkers;
+            } else {
+                // Si por alguna razón hay otro rol, solo ve trabajadores
+                filteredWorkers = allWorkers.filter(w => w.role === 'Trabajador');
             }
 
             tbody.innerHTML = '';
@@ -251,8 +251,7 @@
             const workers = JSON.parse(localStorage.getItem('workers')) || [];
             const role = document.getElementById('work-role').value;
             
-            // Generar Código según el formato solicitado (FP-XXXX-0000)
-            const prefix = role === 'Supervisor' ? 'FP-SUPV-' : 'FP-TRBJ-';
+            const prefix = role === 'Admin' ? 'FP-ADMIN-' : 'FP-TRBJ-';
             const count = workers.filter(w => w.role === role).length + 1;
             const code = prefix + count.toString().padStart(4, '0');
 
