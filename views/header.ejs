@@ -156,7 +156,7 @@
                 userLink.innerHTML = `<i class="bi bi-person-check-fill fs-5 text-warning" title="${user.name}"></i>`;
                 
                 // Mostrar panel administrativo si no es cliente
-                if (user.role !== 'client' && adminLink) {
+                if (user.role !== 'client' && user.role !== 'Cliente' && adminLink) {
                     adminLink.classList.remove('d-none');
                 }
             }

@@ -98,13 +98,13 @@
         
         // Mostrar botón de panel administrativo si no es cliente
         const adminBtn = document.getElementById('profile-admin-btn');
-        if (currentUser.role !== 'client' && adminBtn) {
+        if (currentUser.role !== 'client' && currentUser.role !== 'Cliente' && adminBtn) {
             adminBtn.classList.remove('d-none');
         }
         
         const labels = document.querySelectorAll('.fs-5.fw-semibold');
         labels[0].innerText = currentUser.name;
-        labels[1].innerText = currentUser.email || (currentUser.role === 'admin' ? 'admin@ferremax.com' : 'usuario@email.com');
+        labels[1].innerText = currentUser.email || (currentUser.role === 'admin' || currentUser.role === 'Admin' ? 'admin@ferremax.com' : 'usuario@email.com');
         labels[2].innerText = currentUser.phone || '+51 000 000 000';
         
         // Pre-llenar modal

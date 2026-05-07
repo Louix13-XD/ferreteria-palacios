@@ -39,7 +39,7 @@
     document.addEventListener('DOMContentLoaded', () => {
         const currentUser = JSON.parse(localStorage.getItem('currentUser'));
         // Si el usuario no es ni Admin ni Supervisor (es decir, es Trabajador)
-        if (currentUser && currentUser.role !== 'admin' && currentUser.role !== 'Supervisor') {
+        if (currentUser && currentUser.role !== 'admin' && currentUser.role !== 'Admin' && currentUser.role !== 'Supervisor') {
             document.querySelectorAll('.admin-only').forEach(el => {
                 el.style.display = 'none';
             });
