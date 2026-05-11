@@ -315,6 +315,23 @@ app.get('/api/ventas/detalle/:codigo', async (req, res) => {
     }
 });
 
+app.get('/api/stats/sales-by-category', async (req, res) => {
+    try {
+        const result = await db.query(`
+            SELECT c.nombre as categoria, SUM(dv.subtotal) as total
+            FROM detalle_ventas dv
+            JOIN productos p ON dv.producto_id = p.id
+            JOIN categorias c ON p.categoria_id = c.id
+            GROUP BY c.nombre
+            ORDER BY total DESC
+        `);
+        res.json({ success: true, stats: result.rows });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ success: false });
+    }
+});
+
 app.get('/api/ventas/cliente/:clienteId', async (req, res) => {
     try {
         const result = await db.query(`

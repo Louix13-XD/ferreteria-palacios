@@ -121,8 +121,8 @@
             </div>
             <div class="col-md-4">
                 <div class="card border-0 shadow-sm rounded-4 p-4 h-100">
-                    <h5 class="fw-bold mb-4">Categorías más Vendidas</h5>
-                    <div style="height: 300px;"><canvas id="topCategoriesChart"></canvas></div>
+                    <h5 class="fw-bold mb-4">Stock por Categoría</h5>
+                    <div style="height: 300px;"><canvas id="inventoryChart"></canvas></div>
                 </div>
             </div>
         </div>
@@ -226,27 +226,31 @@
                 options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
             });
 
-            // Lógica para categorías más vendidas (Simulado o basado en ventas reales si tenemos el JOIN)
-            // Para hacerlo real, necesitamos que el API de ventas traiga los nombres de categorías
-            // Por ahora lo basaremos en la cantidad de productos vendidos por categoría de los productos actuales
-            const salesByCat = {};
-            sales.forEach(s => {
-                // Como no tenemos el detalle directo aquí, simulamos una distribución basada en los datos
-                // En una app real, esto vendría de un endpoint de agregación SQL
+            // Gráfico de Inventario por Categoría (Stock Real)
+            const cats = {};
+            products.forEach(p => {
+                const catName = p.category_name || 'Sin Categoría';
+                cats[catName] = (cats[catName] || 0) + p.stock;
             });
             
-            const ctxCat = document.getElementById('topCategoriesChart').getContext('2d');
-            new Chart(ctxCat, {
-                type: 'doughnut',
+            const ctxInv = document.getElementById('inventoryChart').getContext('2d');
+            new Chart(ctxInv, {
+                type: 'bar',
                 data: {
-                    labels: ['Herramientas', 'Pintura', 'Construcción'],
+                    labels: Object.keys(cats),
                     datasets: [{
-                        data: [12, 19, 8],
-                        backgroundColor: ['#ffc107', '#212529', '#0d6efd'],
-                        borderWidth: 0
+                        label: 'Unidades en Stock',
+                        data: Object.values(cats),
+                        backgroundColor: '#ffc107',
+                        borderRadius: 5
                     }]
                 },
-                options: { responsive: true, maintainAspectRatio: false, cutout: '75%' }
+                options: { 
+                    indexAxis: 'y',
+                    responsive: true, 
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } }
+                }
             });
         });
     </script>
