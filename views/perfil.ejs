@@ -134,17 +134,39 @@
         
         const currentUser = JSON.parse(localStorage.getItem('currentUser'));
         
-        // En una implementación real, aquí se llamaría a una API para actualizar la BD
-        // Por ahora, actualizamos el localStorage para que se refleje en la vista
-        currentUser.name = nuevoNombre;
-        currentUser.email = nuevoCorreo;
-        currentUser.phone = nuevoTelefono;
-        currentUser.address = nuevaDireccion;
-        
-        localStorage.setItem('currentUser', JSON.stringify(currentUser));
-        
-        alert('Perfil actualizado (Localmente). Próximamente se sincronizará con la base de datos.');
-        location.reload();
+        const payload = {
+            nombre_completo: nuevoNombre,
+            email: nuevoCorreo,
+            celular: nuevoTelefono,
+            direccion_zona: nuevaDireccion,
+            rol: 'Cliente' // Mantenemos el rol
+        };
+
+        try {
+            const res = await fetch(`/api/usuarios/${currentUser.id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            const data = await res.json();
+            
+            if (data.success) {
+                // Actualizamos el localStorage para que la UI se mantenga al día
+                currentUser.name = nuevoNombre;
+                currentUser.email = nuevoCorreo;
+                currentUser.phone = nuevoTelefono;
+                currentUser.address = nuevaDireccion;
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                
+                alert('¡Perfil actualizado con éxito!');
+                location.reload();
+            } else {
+                alert('Error al actualizar: ' + data.message);
+            }
+        } catch (error) {
+            console.error(error);
+            alert('Error de conexión al servidor.');
+        }
     });
 </script>
 
