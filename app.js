@@ -120,22 +120,28 @@ app.post('/api/login', async (req, res) => {
         }
 
         const isMatch = await bcrypt.compare(password, user.password);
-        if (!isMatch) {
-            return res.status(401).json({ success: false, message: 'Contraseña incorrecta' });
-        }
-
-        res.json({
-            success: true,
-            user: {
-                id: user.codigo_interno || user.id,
+        if (isMatch) {
+            // ESTABLECER SESIÓN EN EL SERVIDOR (CRÍTICO)
+            req.session.userId = user.id;
+            req.session.user = {
+                id: user.id,
                 name: user.nombre_completo,
                 email: user.email,
-                phone: user.celular,
-                address: user.direccion_zona,
-                role: user.rol === 'Cliente' ? 'client' : user.rol,
-                joined: user.creado_en
-            }
-        });
+                role: user.rol
+            };
+
+            res.json({
+                success: true,
+                user: {
+                    id: user.id,
+                    name: user.nombre_completo,
+                    email: user.email,
+                    role: user.rol
+                }
+            });
+        } else {
+            return res.status(401).json({ success: false, message: 'Contraseña incorrecta' });
+        }
     } catch (error) {
         console.error(error);
         res.status(500).json({ success: false, message: 'Error en el servidor' });
