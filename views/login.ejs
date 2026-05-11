@@ -155,14 +155,17 @@
                 const data = await res.json();
 
                 if (data.success) {
-                    // Mantenemos compatibilidad de vistas
+                    // Guardar datos del usuario para la UI
                     localStorage.setItem('currentUser', JSON.stringify(data.user));
                     
                     const rol = data.user.role;
+                    // Redirección inteligente
                     if (rol === 'Admin' || rol === 'Supervisor' || rol === 'Trabajador_Ventas' || rol === 'Trabajador_Almacen') {
                         window.location.href = '/admin';
                     } else {
-                        window.location.href = '/';
+                        // Si venía del carrito, regresarlo allí
+                        const wasInCart = document.referrer.includes('carrito');
+                        window.location.href = wasInCart ? '/carrito' : '/';
                     }
                 } else {
                     alert(data.message || "Credenciales incorrectas.");
