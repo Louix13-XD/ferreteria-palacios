@@ -18,6 +18,7 @@
         .stat-card { border: none; border-radius: 20px; transition: transform 0.3s; height: 100%; }
         .stat-card:hover { transform: translateY(-5px); }
         @media (max-width: 768px) { .admin-sidebar { margin-left: -250px; } .admin-content { margin-left: 0; } }
+        .extra-small { font-size: 0.75rem; }
     </style>
     <link rel="icon" type="image/png" href="/img/logo_ferreteria.png">
 </head>
@@ -38,76 +39,74 @@
         </header>
 
         <!-- Métricas Principales -->
-        <div class="row g-4 mb-5">
+        <div class="row row-cols-1 row-cols-md-5 g-4 mb-5">
             <!-- Ventas Hoy -->
-            <div class="col-md-3">
-                <div class="card stat-card shadow-sm p-4 border-0">
-                    <div class="d-flex justify-content-between align-items-start mb-3">
-                        <div class="bg-warning bg-opacity-10 p-3 rounded-4">
-                            <i class="bi bi-currency-dollar text-warning fs-4"></i>
+            <div class="col">
+                <div class="card stat-card shadow-sm p-3 border-0 h-100">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <div class="bg-warning bg-opacity-10 p-2 rounded-3">
+                            <i class="bi bi-currency-dollar text-warning fs-5"></i>
                         </div>
-                        <span class="badge bg-success bg-opacity-10 text-success fw-bold">+0%</span>
+                        <span class="badge bg-success bg-opacity-10 text-success rounded-pill extra-small">+0%</span>
                     </div>
-                    <p class="text-muted small fw-bold text-uppercase mb-1">Ventas Hoy</p>
-                    <h3 class="fw-bold mb-0" id="stat-sales-today">S/ 0.00</h3>
+                    <p class="text-muted extra-small fw-bold text-uppercase mb-1">Ventas Hoy</p>
+                    <h4 class="fw-bold mb-0" id="stat-sales-today">S/ 0.00</h4>
                 </div>
             </div>
 
             <!-- Ganancia Neta -->
-            <div class="col-md-3">
-                <div class="card stat-card shadow-sm p-4 border-0">
-                    <div class="d-flex justify-content-between align-items-start mb-3">
-                        <div class="bg-success bg-opacity-10 p-3 rounded-4">
-                            <i class="bi bi-cash-stack text-success fs-4"></i>
+            <div class="col">
+                <div class="card stat-card shadow-sm p-3 border-0 h-100">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <div class="bg-success bg-opacity-10 p-2 rounded-3">
+                            <i class="bi bi-cash-stack text-success fs-5"></i>
                         </div>
                     </div>
-                    <p class="text-muted small fw-bold text-uppercase mb-1">Ganancia Neta</p>
-                    <h3 class="fw-bold mb-0 text-success" id="dash-net-profit">S/ 0.00</h3>
-                    <small class="text-muted mt-2 d-block">Bruto: <span id="dash-gross-profit" class="fw-bold">S/ 0.00</span></small>
+                    <p class="text-muted extra-small fw-bold text-uppercase mb-1">Ganancia Neta</p>
+                    <h4 class="fw-bold mb-0 text-success" id="dash-net-profit">S/ 0.00</h4>
+                    <small class="text-muted extra-small d-block">Bruto: <span id="dash-gross-profit">S/ 0.00</span></small>
                 </div>
             </div>
 
             <!-- Pedidos -->
-            <div class="col-md-3">
-                <div class="card stat-card shadow-sm p-4 border-0">
-                    <div class="d-flex justify-content-between align-items-start mb-3">
-                        <div class="bg-primary bg-opacity-10 p-3 rounded-4">
-                            <i class="bi bi-cart-check text-primary fs-4"></i>
+            <div class="col">
+                <div class="card stat-card shadow-sm p-3 border-0 h-100">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <div class="bg-primary bg-opacity-10 p-2 rounded-3">
+                            <i class="bi bi-cart-check text-primary fs-5"></i>
                         </div>
                     </div>
-                    <p class="text-muted small fw-bold text-uppercase mb-1">Total Pedidos</p>
-                    <h3 class="fw-bold mb-0" id="stat-orders-count">0</h3>
-                    <small class="text-primary mt-2 d-block">En el sistema</small>
+                    <p class="text-muted extra-small fw-bold text-uppercase mb-1">Total Pedidos</p>
+                    <h4 class="fw-bold mb-0" id="stat-orders-count">0</h4>
+                    <small class="text-primary extra-small d-block">En el sistema</small>
                 </div>
             </div>
 
             <!-- Stock Crítico -->
-            <div class="col-md-3">
-                <div class="card stat-card shadow-sm p-4 border-0">
-                    <div class="d-flex justify-content-between align-items-start mb-3">
-                        <div class="bg-danger bg-opacity-10 p-3 rounded-4">
-                            <i class="bi bi-exclamation-triangle text-danger fs-4"></i>
+            <div class="col">
+                <div class="card stat-card shadow-sm p-3 border-0 h-100">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <div class="bg-danger bg-opacity-10 p-2 rounded-3">
+                            <i class="bi bi-exclamation-triangle text-danger fs-5"></i>
                         </div>
                     </div>
-                    <p class="text-muted small fw-bold text-uppercase mb-1">Stock Bajo</p>
-                    <h3 class="fw-bold mb-0 text-danger" id="stat-critical-stock">0</h3>
-                    <small class="text-danger mt-2 d-block">Reponer pronto</small>
+                    <p class="text-muted extra-small fw-bold text-uppercase mb-1">Stock Bajo</p>
+                    <h4 class="fw-bold mb-0 text-danger" id="stat-critical-stock">0</h4>
+                    <small class="text-danger extra-small d-block">Reponer pronto</small>
                 </div>
             </div>
-        </div>
 
-        <div class="row g-4 mb-5">
             <!-- Total Productos -->
-            <div class="col-md-4">
-                <div class="card stat-card shadow-sm p-4 border-0">
-                    <div class="d-flex justify-content-between align-items-start mb-3">
-                        <div class="bg-info bg-opacity-10 p-3 rounded-4">
-                            <i class="bi bi-boxes text-info fs-4"></i>
+            <div class="col">
+                <div class="card stat-card shadow-sm p-3 border-0 h-100">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <div class="bg-info bg-opacity-10 p-2 rounded-3">
+                            <i class="bi bi-boxes text-info fs-5"></i>
                         </div>
                     </div>
-                    <p class="text-muted small fw-bold text-uppercase mb-1">Productos en Inventario</p>
-                    <h3 class="fw-bold mb-0" id="stat-total-products">0</h3>
-                    <small class="text-muted mt-2 d-block">Productos registrados</small>
+                    <p class="text-muted extra-small fw-bold text-uppercase mb-1">Productos</p>
+                    <h4 class="fw-bold mb-0" id="stat-total-products">0</h4>
+                    <small class="text-muted extra-small d-block">Registrados</small>
                 </div>
             </div>
         </div>
