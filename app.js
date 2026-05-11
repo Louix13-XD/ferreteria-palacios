@@ -179,6 +179,7 @@ app.get('/api/productos', async (req, res) => {
             FROM productos p
             JOIN categorias c ON p.categoria_id = c.id
             LEFT JOIN usuarios u ON p.modificado_por = u.id
+            WHERE p.estado != 'Eliminado'
             ORDER BY p.id DESC
         `);
         res.json({ success: true, products: result.rows });
@@ -222,8 +223,8 @@ app.put('/api/productos/:id', async (req, res) => {
 
 app.delete('/api/productos/:id', async (req, res) => {
     try {
-        await db.query('DELETE FROM productos WHERE id=$1', [req.params.id]);
-        res.json({ success: true, message: 'Producto eliminado' });
+        await db.query("UPDATE productos SET estado = 'Eliminado' WHERE id=$1", [req.params.id]);
+        res.json({ success: true, message: 'Producto eliminado (lógicamente)' });
     } catch (error) {
         console.error(error);
         res.status(500).json({ success: false, message: 'Error al eliminar producto' });
@@ -248,9 +249,9 @@ app.post('/api/ventas', async (req, res) => {
 
         for (let item of detalles) {
             await client.query(
-                `INSERT INTO detalle_ventas (venta_id, producto_id, cantidad, precio_unitario, subtotal)
-                 VALUES ($1, $2, $3, $4, $5)`,
-                [venta_id, item.id, item.cantidad, item.precio, item.cantidad * item.precio]
+                `INSERT INTO detalle_ventas (venta_id, producto_id, cantidad, precio_unitario, subtotal, nombre_producto)
+                 VALUES ($1, $2, $3, $4, $5, $6)`,
+                [venta_id, item.id, item.cantidad, item.precio, item.cantidad * item.precio, item.name]
             );
             await client.query(
                 `UPDATE productos SET stock = stock - $1 WHERE id = $2`,
@@ -300,9 +301,9 @@ app.get('/api/ventas/detalle/:codigo', async (req, res) => {
         const venta = result.rows[0];
         
         const detallesResult = await db.query(`
-            SELECT dv.*, p.nombre as producto_nombre 
+            SELECT dv.*, COALESCE(dv.nombre_producto, p.nombre) as producto_nombre 
             FROM detalle_ventas dv 
-            JOIN productos p ON dv.producto_id = p.id 
+            LEFT JOIN productos p ON dv.producto_id = p.id 
             WHERE dv.venta_id = $1
         `, [venta.id]);
         
