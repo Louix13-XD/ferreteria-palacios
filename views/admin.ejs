@@ -226,7 +226,7 @@
                 options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
             });
 
-            // Gráfico de Inventario por Categoría (Stock Real)
+            // Gráfico de Inventario por Categoría (Doughnut - Estilo Original)
             const cats = {};
             products.forEach(p => {
                 const catName = p.category_name || 'Sin Categoría';
@@ -235,21 +235,22 @@
             
             const ctxInv = document.getElementById('inventoryChart').getContext('2d');
             new Chart(ctxInv, {
-                type: 'bar',
+                type: 'doughnut',
                 data: {
-                    labels: Object.keys(cats),
+                    labels: Object.keys(cats).length > 0 ? Object.keys(cats) : ['Sin Stock'],
                     datasets: [{
-                        label: 'Unidades en Stock',
-                        data: Object.values(cats),
-                        backgroundColor: '#ffc107',
-                        borderRadius: 5
+                        data: Object.keys(cats).length > 0 ? Object.values(cats) : [1],
+                        backgroundColor: ['#ffc107', '#212529', '#0d6efd', '#198754', '#dc3545', '#6c757d'],
+                        borderWidth: 0
                     }]
                 },
                 options: { 
-                    indexAxis: 'y',
                     responsive: true, 
-                    maintainAspectRatio: false,
-                    plugins: { legend: { display: false } }
+                    maintainAspectRatio: false, 
+                    cutout: '75%',
+                    plugins: { 
+                        legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 10 } } }
+                    }
                 }
             });
         });
