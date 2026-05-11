@@ -57,11 +57,22 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            renderClients();
+            fetchClients();
         });
 
-        function renderClients() {
-            const users = JSON.parse(localStorage.getItem('registeredUsers')) || [];
+        async function fetchClients() {
+            try {
+                const res = await fetch('/api/usuarios?rol=Cliente');
+                const data = await res.json();
+                if (data.success) {
+                    renderClients(data.usuarios);
+                }
+            } catch (e) {
+                console.error('Error al cargar clientes:', e);
+            }
+        }
+
+        function renderClients(users) {
             const tbody = document.getElementById('clients-table-body');
             document.getElementById('total-clients-count').innerText = users.length;
             
@@ -72,35 +83,42 @@
                 return;
             }
 
-            users.forEach((user, index) => {
+            users.forEach((user) => {
                 tbody.innerHTML += `
                     <tr>
                         <td class="ps-4">
                             <div class="d-flex align-items-center">
-                                <img src="https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=ffc107&color=212529" class="user-avatar me-3 shadow-sm">
+                                <img src="https://ui-avatars.com/api/?name=${encodeURIComponent(user.nombre_completo)}&background=ffc107&color=212529" class="user-avatar me-3 shadow-sm">
                                 <div>
-                                    <p class="fw-bold mb-0">${user.name}</p>
+                                    <p class="fw-bold mb-0">${user.nombre_completo}</p>
                                     <small class="text-muted text-uppercase" style="font-size: 10px;">Cuenta Cliente</small>
                                 </div>
                             </div>
                         </td>
                         <td class="text-muted">${user.email}</td>
-                        <td><span class="badge bg-success bg-opacity-10 text-success px-3 rounded-pill">Activo</span></td>
+                        <td><span class="badge bg-success bg-opacity-10 text-success px-3 rounded-pill">${user.estado || 'Activo'}</span></td>
                         <td class="text-end pe-4">
                             <button class="btn btn-sm btn-outline-dark me-1" title="Ver detalles"><i class="bi bi-eye"></i></button>
-                            <button class="btn btn-sm btn-outline-danger" onclick="deleteClient(${index})" title="Bloquear cuenta"><i class="bi bi-shield-slash"></i></button>
+                            <button class="btn btn-sm btn-outline-danger" onclick="deleteClient(${user.id})" title="Eliminar cuenta"><i class="bi bi-trash"></i></button>
                         </td>
                     </tr>
                 `;
             });
         }
 
-        function deleteClient(index) {
+        async function deleteClient(id) {
             if(confirm('¿Estás seguro de que deseas eliminar la cuenta de este cliente? Esta acción no se puede deshacer.')) {
-                const users = JSON.parse(localStorage.getItem('registeredUsers')) || [];
-                users.splice(index, 1);
-                localStorage.setItem('registeredUsers', JSON.stringify(users));
-                renderClients();
+                try {
+                    const res = await fetch(`/api/usuarios/${id}`, { method: 'DELETE' });
+                    const data = await res.json();
+                    if (data.success) {
+                        fetchClients();
+                    } else {
+                        alert('Error al eliminar: ' + data.message);
+                    }
+                } catch (e) {
+                    alert('Error de conexión');
+                }
             }
         }
     </script>

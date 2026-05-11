@@ -352,7 +352,20 @@ app.delete('/api/ventas/:id', async (req, res) => {
 // --- APIS DE USUARIOS / PERSONAL ---
 app.get('/api/usuarios', async (req, res) => {
     try {
-        const result = await db.query("SELECT * FROM usuarios WHERE rol != 'Cliente' ORDER BY id DESC");
+        const { rol } = req.query;
+        let query = "SELECT * FROM usuarios ";
+        let params = [];
+        
+        if (rol) {
+            query += "WHERE rol = $1 ";
+            params.push(rol);
+        } else {
+            // Por defecto, excluir clientes para no romper la gestión de personal actual
+            query += "WHERE rol != 'Cliente' ";
+        }
+        
+        query += "ORDER BY id DESC";
+        const result = await db.query(query, params);
         res.json({ success: true, usuarios: result.rows });
     } catch (error) {
         console.error(error);
