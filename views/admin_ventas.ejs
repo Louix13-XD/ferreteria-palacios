@@ -91,13 +91,13 @@
                                     </td>
                                 </tr>
                             `;
-                        } catch (e) {
-                            console.error("Error procesando fila de venta:", e, sale);
-                        }
+                        } catch (e) { console.error("Error en fila:", e); }
                     });
+                } else {
+                    tbody.innerHTML = `<tr><td colspan="6" class="text-center py-5 text-danger">Error del servidor: ${data.message || 'No se pudo obtener la lista'}.</td></tr>`;
                 }
             } catch (error) {
-                tbody.innerHTML = `<tr><td colspan="6" class="text-center py-5 text-danger">Error conectando con PostgreSQL en Render.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="6" class="text-center py-5 text-danger">Error de conexión. Verifica tu internet o si el servidor está activo.</td></tr>`;
             }
         }
 

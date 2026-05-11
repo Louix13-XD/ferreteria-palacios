@@ -177,7 +177,7 @@ app.post('/api/register', async (req, res) => {
 app.get('/api/ventas', async (req, res) => {
     try {
         const result = await db.query(`
-            SELECT v.*, u.nombre as cliente_nombre 
+            SELECT v.*, u.nombre_completo as cliente_nombre 
             FROM ventas v 
             LEFT JOIN usuarios u ON v.cliente_id = u.id 
             ORDER BY v.fecha_compra DESC
@@ -195,7 +195,7 @@ app.get('/api/ventas/detalle/:codigo', async (req, res) => {
     try {
         // Obtener la venta y el nombre del cliente
         const ventaRes = await db.query(`
-            SELECT v.*, u.nombre as cliente_nombre 
+            SELECT v.*, u.nombre_completo as cliente_nombre 
             FROM ventas v 
             LEFT JOIN usuarios u ON v.cliente_id = u.id 
             WHERE v.codigo_boleta = $1`, 
