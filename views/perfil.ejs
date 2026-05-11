@@ -27,7 +27,7 @@
                         </div>
                         <div class="col-md-6">
                             <label class="form-label text-muted small fw-bold text-uppercase">Fecha de Registro</label>
-                            <p class="fs-5 fw-semibold border-bottom pb-2">15 de Marzo, 2024</p>
+                            <p class="fs-5 fw-semibold border-bottom pb-2" id="profile-joined">---</p>
                         </div>
                         <div class="col-12">
                             <label class="form-label text-muted small fw-bold text-uppercase">Dirección Principal</label>
@@ -109,6 +109,14 @@
         labels[1].innerText = currentUser.email || 'usuario@email.com';
         labels[2].innerText = currentUser.phone || '---';
         document.getElementById('profile-address').innerText = currentUser.address || 'Sin dirección registrada';
+        
+        if (currentUser.joined) {
+            const date = new Date(currentUser.joined);
+            const options = { day: 'numeric', month: 'long', year: 'numeric' };
+            document.getElementById('profile-joined').innerText = date.toLocaleDateString('es-ES', options);
+        } else {
+            document.getElementById('profile-joined').innerText = '11 de Mayo, 2026';
+        }
         
         // Pre-llenar modal
         document.getElementById('edit-nombre').value = currentUser.name;

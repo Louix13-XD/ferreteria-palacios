@@ -130,7 +130,8 @@ app.post('/api/login', async (req, res) => {
                 email: user.email,
                 phone: user.celular,
                 address: user.direccion_zona,
-                role: user.rol === 'Cliente' ? 'client' : user.rol
+                role: user.rol === 'Cliente' ? 'client' : user.rol,
+                joined: user.creado_en
             }
         });
     } catch (error) {
