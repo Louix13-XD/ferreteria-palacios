@@ -180,27 +180,65 @@
             const ctx = document.getElementById('growthChart').getContext('2d');
             if(growthChart) growthChart.destroy();
 
-            const monthlyData = new Array(12).fill(0);
-            salesData.forEach(s => {
-                const month = new Date(s.fecha_compra).getMonth();
-                monthlyData[month] += parseFloat(s.total_venta);
-            });
+            const range = document.getElementById('filter-range').value;
+            let labels = [];
+            let data = [];
+
+            if (range === '7' || range === '30' || (range === 'custom' && salesData.length > 0)) {
+                // Lógica para etiquetas diarias (7 o 30 días)
+                const daysToGen = range === '7' ? 7 : (range === '30' ? 30 : 0);
+                
+                if (daysToGen > 0) {
+                    for (let i = daysToGen - 1; i >= 0; i--) {
+                        const d = new Date();
+                        d.setDate(d.getDate() - i);
+                        const label = d.toLocaleDateString('es-ES', { day: '2-digit', month: 'short' });
+                        labels.push(label);
+                        
+                        const dayTotal = salesData
+                            .filter(s => new Date(s.fecha_compra).toLocaleDateString() === d.toLocaleDateString())
+                            .reduce((acc, s) => acc + parseFloat(s.total_venta), 0);
+                        data.push(dayTotal);
+                    }
+                } else {
+                    // Si es custom pero el rango es pequeño, mostrar días, si no meses
+                    // Por ahora mantenemos mensual para custom largo o "all"
+                    labels = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+                    data = new Array(12).fill(0);
+                    salesData.forEach(s => {
+                        const month = new Date(s.fecha_compra).getMonth();
+                        data[month] += parseFloat(s.total_venta);
+                    });
+                }
+            } else {
+                // Todo el tiempo o sin datos específicos
+                labels = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+                data = new Array(12).fill(0);
+                salesData.forEach(s => {
+                    const month = new Date(s.fecha_compra).getMonth();
+                    data[month] += parseFloat(s.total_venta);
+                });
+            }
 
             growthChart = new Chart(ctx, {
                 type: 'bar',
                 data: {
-                    labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'],
+                    labels: labels,
                     datasets: [{
-                        label: 'Ingresos Mensuales',
-                        data: monthlyData,
+                        label: 'Ingresos',
+                        data: data,
                         backgroundColor: '#ffc107',
-                        borderRadius: 8
+                        borderRadius: 8,
+                        barThickness: range === '30' ? 10 : 'flex'
                     }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
+                    plugins: { 
+                        legend: { display: false },
+                        tooltip: { callbacks: { label: (c) => `S/ ${c.raw.toFixed(2)}` } }
+                    },
                     scales: { 
                         y: { beginAtZero: true, grid: { drawBorder: false, color: '#eee' } },
                         x: { grid: { display: false } }
