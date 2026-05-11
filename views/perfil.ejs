@@ -66,6 +66,10 @@
                             <input type="text" class="form-control" id="edit-nombre" required>
                         </div>
                         <div class="mb-3">
+                            <label class="form-label fw-bold small">Correo Electrónico</label>
+                            <input type="email" class="form-control" id="edit-correo" required>
+                        </div>
+                        <div class="mb-3">
                             <label class="form-label fw-bold small">Teléfono</label>
                             <input type="text" class="form-control" id="edit-telefono">
                         </div>
@@ -109,6 +113,7 @@
         
         // Pre-llenar modal
         document.getElementById('edit-nombre').value = currentUser.name;
+        document.getElementById('edit-correo').value = currentUser.email || '';
         document.getElementById('edit-telefono').value = currentUser.phone || '';
         document.getElementById('edit-direccion').value = currentUser.address || '';
     });
@@ -123,6 +128,7 @@
     document.getElementById('formEditProfile')?.addEventListener('submit', async function(e) {
         e.preventDefault();
         const nuevoNombre = document.getElementById('edit-nombre').value;
+        const nuevoCorreo = document.getElementById('edit-correo').value;
         const nuevoTelefono = document.getElementById('edit-telefono').value;
         const nuevaDireccion = document.getElementById('edit-direccion').value;
         
@@ -131,6 +137,7 @@
         // En una implementación real, aquí se llamaría a una API para actualizar la BD
         // Por ahora, actualizamos el localStorage para que se refleje en la vista
         currentUser.name = nuevoNombre;
+        currentUser.email = nuevoCorreo;
         currentUser.phone = nuevoTelefono;
         currentUser.address = nuevaDireccion;
         
