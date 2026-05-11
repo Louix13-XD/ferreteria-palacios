@@ -178,8 +178,81 @@ document.addEventListener('DOMContentLoaded', async () => {
     
     if (typeof currentCategory !== 'undefined') {
         const filtered = storeProducts.filter(p => p.category.toLowerCase() === currentCategory.toLowerCase());
-        renderProducts(filtered, 'products-container');
+        renderProducts(filtered, 'category-products');
+        setupCategoryFilters(filtered);
     } else {
         renderProducts(storeProducts, 'featured-products');
     }
 });
+
+// --- LÓGICA DE FILTROS DINÁMICOS ---
+
+function setupCategoryFilters(products) {
+    // 1. Extraer marcas únicas
+    const brandsContainer = document.querySelector('aside .mb-4:nth-child(2) div') || document.querySelector('.mb-4:last-child');
+    if (brandsContainer) {
+        const brands = [...new Set(products.map(p => p.brand).filter(b => b))];
+        let brandsHTML = '';
+        brands.forEach((brand, i) => {
+            brandsHTML += `
+                <div class="form-check">
+                    <input class="form-check-input filter-brand" type="checkbox" value="${brand}" id="brand-${i}">
+                    <label class="form-check-label" for="brand-${i}">${brand}</label>
+                </div>
+            `;
+        });
+        if (brands.length > 0) {
+            brandsContainer.innerHTML = brandsHTML;
+        } else {
+            brandsContainer.innerHTML = '<p class="text-muted small">No hay marcas disponibles</p>';
+        }
+    }
+
+    // 2. Escuchar cambios en filtros de precio
+    document.querySelectorAll('.form-check-input').forEach(input => {
+        input.addEventListener('change', () => applyFilters(products));
+    });
+
+    // 3. Escuchar cambios en ordenamiento
+    document.querySelectorAll('.dropdown-item').forEach(item => {
+        item.addEventListener('click', (e) => {
+            e.preventDefault();
+            const sortType = e.target.innerText.toLowerCase();
+            applyFilters(products, sortType);
+        });
+    });
+}
+
+function applyFilters(originalProducts, sortType = null) {
+    let filtered = [...originalProducts];
+
+    // Filtrar por Marca
+    const selectedBrands = Array.from(document.querySelectorAll('.filter-brand:checked')).map(cb => cb.value);
+    if (selectedBrands.length > 0) {
+        filtered = filtered.filter(p => selectedBrands.includes(p.brand));
+    }
+
+    // Filtrar por Precio (Rangos: p1=0-50, p2=50-200, p3=200+)
+    const p1 = document.getElementById('p1')?.checked;
+    const p2 = document.getElementById('p2')?.checked;
+    const p3 = document.getElementById('p3')?.checked;
+
+    if (p1 || p2 || p3) {
+        filtered = filtered.filter(p => {
+            if (p1 && p.price <= 50) return true;
+            if (p2 && p.price > 50 && p.price <= 200) return true;
+            if (p3 && p.price > 200) return true;
+            return false;
+        });
+    }
+
+    // Ordenar
+    if (sortType) {
+        if (sortType.includes('menor')) filtered.sort((a, b) => a.price - b.price);
+        if (sortType.includes('mayor')) filtered.sort((a, b) => b.price - a.price);
+        // "Más recientes" por ID descendente
+        if (sortType.includes('recientes')) filtered.sort((a, b) => b.id - a.id);
+    }
+
+    renderProducts(filtered, 'category-products');
+}
