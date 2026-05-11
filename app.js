@@ -318,11 +318,14 @@ app.get('/api/ventas/detalle/:codigo', async (req, res) => {
 app.get('/api/stats/sales-by-category', async (req, res) => {
     try {
         const result = await db.query(`
-            SELECT c.nombre as categoria, SUM(dv.subtotal) as total
-            FROM detalle_ventas dv
-            JOIN productos p ON dv.producto_id = p.id
-            JOIN categorias c ON p.categoria_id = c.id
-            GROUP BY c.nombre
+            SELECT 
+                COALESCE(c.nombre, 'Ventas Antiguas / Otros') as categoria, 
+                SUM(v.total_venta) as total
+            FROM ventas v
+            LEFT JOIN detalle_ventas dv ON v.id = dv.venta_id
+            LEFT JOIN productos p ON dv.producto_id = p.id
+            LEFT JOIN categorias c ON p.categoria_id = c.id
+            GROUP BY COALESCE(c.nombre, 'Ventas Antiguas / Otros')
             ORDER BY total DESC
         `);
         res.json({ success: true, stats: result.rows });

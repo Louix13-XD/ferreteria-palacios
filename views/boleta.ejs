@@ -130,9 +130,25 @@
                 const itemsContainer = document.getElementById('invoice-items');
                 itemsContainer.innerHTML = '';
                 
+                if (!sale.items || sale.items.length === 0) {
+                    itemsContainer.innerHTML = `
+                        <tr>
+                            <td colspan="4" class="text-center py-3 text-muted italic">
+                                * Venta antigua registrada sin detalles técnicos disponibles.
+                            </td>
+                        </tr>
+                    `;
+                    // Usar el total de la venta para los cálculos si no hay items
+                    const totalVal = parseFloat(sale.total_venta);
+                    document.getElementById('total').innerText = 'S/ ' + totalVal.toFixed(2);
+                    document.getElementById('subtotal').innerText = 'S/ ' + (totalVal / 1.18).toFixed(2);
+                    document.getElementById('igv').innerText = 'S/ ' + (totalVal - (totalVal / 1.18)).toFixed(2);
+                    return;
+                }
+
                 let totalBase = 0;
 
-                (sale.items || []).forEach(item => {
+                sale.items.forEach(item => {
                     const price = parseFloat(item.precio_unitario);
                     const qty = parseInt(item.cantidad);
                     const basePrice = price / 1.18;

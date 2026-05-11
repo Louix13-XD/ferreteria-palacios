@@ -232,13 +232,14 @@
                     const stats = data.stats;
                     const labels = stats.map(s => s.categoria);
                     const values = stats.map(s => parseFloat(s.total));
+                    const totalSum = values.reduce((a, b) => a + b, 0);
 
                     salesByCatChart = new Chart(ctx, {
                         type: 'doughnut',
                         data: {
-                            labels: labels.length > 0 ? labels : ['Sin Ventas'],
+                            labels: totalSum > 0 ? labels : ['Sin Ventas'],
                             datasets: [{
-                                data: values.length > 0 ? values : [1],
+                                data: totalSum > 0 ? values : [1],
                                 backgroundColor: ['#ffc107', '#212529', '#0d6efd', '#198754', '#dc3545', '#6c757d'],
                                 borderWidth: 0
                             }]
