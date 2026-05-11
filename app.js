@@ -189,11 +189,11 @@ app.get('/api/productos', async (req, res) => {
 
 app.post('/api/productos', async (req, res) => {
     try {
-        const { nombre, categoria_id, descripcion, precio_base, precio_final, stock, imagen_url, modificado_por } = req.body;
+        const { nombre, categoria_id, descripcion, precio_base, precio_final, stock, imagen_url, modificado_por, marca } = req.body;
         await db.query(
-            `INSERT INTO productos (nombre, categoria_id, descripcion, precio_base, precio_final, stock, imagen_url, estado, modificado_por)
-             VALUES ($1, $2, $3, $4, $5, $6, $7, 'Activo', $8)`,
-            [nombre, categoria_id, descripcion, precio_base, precio_final, stock, imagen_url, modificado_por]
+            `INSERT INTO productos (nombre, categoria_id, descripcion, precio_base, precio_final, stock, imagen_url, estado, modificado_por, marca)
+             VALUES ($1, $2, $3, $4, $5, $6, $7, 'Activo', $8, $9)`,
+            [nombre, categoria_id, descripcion, precio_base, precio_final, stock, imagen_url, modificado_por, marca]
         );
         res.json({ success: true, message: 'Producto creado' });
     } catch (error) {
@@ -205,12 +205,12 @@ app.post('/api/productos', async (req, res) => {
 app.put('/api/productos/:id', async (req, res) => {
     try {
         const { id } = req.params;
-        const { nombre, categoria_id, descripcion, precio_base, precio_final, stock, imagen_url, modificado_por } = req.body;
+        const { nombre, categoria_id, descripcion, precio_base, precio_final, stock, imagen_url, modificado_por, marca } = req.body;
         await db.query(
             `UPDATE productos 
-             SET nombre=$1, categoria_id=$2, descripcion=$3, precio_base=$4, precio_final=$5, stock=$6, imagen_url=$7, modificado_por=$8
-             WHERE id=$9`,
-            [nombre, categoria_id, descripcion, precio_base, precio_final, stock, imagen_url, modificado_por, id]
+             SET nombre=$1, categoria_id=$2, descripcion=$3, precio_base=$4, precio_final=$5, stock=$6, imagen_url=$7, modificado_por=$8, marca=$9
+             WHERE id=$10`,
+            [nombre, categoria_id, descripcion, precio_base, precio_final, stock, imagen_url, modificado_por, marca, id]
         );
         res.json({ success: true, message: 'Producto actualizado' });
     } catch (error) {

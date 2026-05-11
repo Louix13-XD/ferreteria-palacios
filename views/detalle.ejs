@@ -31,6 +31,7 @@
                     product = {
                         id: p.id,
                         name: p.nombre,
+                        brand: p.marca || '',
                         category: p.category_name,
                         price: parseFloat(p.precio_final),
                         stock: p.stock,
@@ -67,6 +68,7 @@
                         </ol>
                     </nav>
 
+                    ${product.brand ? `<span class="badge bg-dark text-white px-3 py-2 rounded-pill mb-2">${product.brand}</span>` : ''}
                     <h1 class="display-5 fw-bold mb-3">${product.name}</h1>
                     
                     <h2 class="text-warning fw-bold mb-4 display-6">S/ ${product.price.toFixed(2)}</h2>

@@ -40,11 +40,14 @@ function renderProducts(products, containerId = 'featured-products') {
                         </button>
                     </div>
                     <div class="card-body">
-                        <small class="text-muted">${product.category}</small>
+                        <div class="d-flex justify-content-between align-items-start mb-1">
+                            <small class="text-muted text-uppercase fw-bold" style="font-size: 0.7rem;">${product.category}</small>
+                            ${product.brand ? `<span class="badge bg-dark text-white border-0 small" style="font-size: 0.65rem;">${product.brand}</span>` : ''}
+                        </div>
                         <a href="/producto/${product.id}" class="text-decoration-none text-dark">
-                            <h5 class="card-title fw-bold">${product.name}</h5>
+                            <h5 class="card-title fw-bold mb-2">${product.name}</h5>
                         </a>
-                        <p class="card-text text-warning fw-bold fs-5">S/ ${product.price.toFixed(2)}</p>
+                        <p class="card-text text-warning fw-bold fs-5 mb-0">S/ ${product.price.toFixed(2)}</p>
                     </div>
                     <div class="card-footer bg-transparent border-0 pb-3">
                         ${isOutStock ? `
@@ -159,6 +162,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             storeProducts = data.products.map(p => ({
                 id: p.id,
                 name: p.nombre,
+                brand: p.marca || '',
                 category: p.category_name,
                 price: parseFloat(p.precio_final),
                 stock: p.stock,

@@ -101,6 +101,10 @@
                             <input type="number" class="form-control" id="prod-stock" value="1" required>
                         </div>
                     </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold small">Marca</label>
+                        <input type="text" class="form-control" id="prod-marca" placeholder="Ej. Stanley, Bosch, etc.">
+                    </div>
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label class="form-label fw-bold small text-primary">Precio Base (S/)</label>
@@ -158,6 +162,10 @@
                             <label class="form-label fw-bold small">Stock</label>
                             <input type="number" class="form-control" id="edit-prod-stock" required>
                         </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold small">Marca</label>
+                        <input type="text" class="form-control" id="edit-prod-marca" placeholder="Ej. Stanley, Bosch, etc.">
                     </div>
                     <div class="row">
                         <div class="col-md-6 mb-3">
@@ -231,6 +239,7 @@
                             </td>
                             <td>
                                 <div class="fw-bold text-dark">${p.nombre}</div>
+                                <div class="text-warning small fw-bold">${p.marca || 'Sin Marca'}</div>
                                 <small class="text-muted small">ID: #${p.id}</small>
                             </td>
                             <td><span class="badge bg-secondary bg-opacity-10 text-secondary px-3">${p.category_name}</span></td>
@@ -285,6 +294,7 @@
         document.getElementById('edit-prod-price-base').value = parseFloat(p.precio_base).toFixed(2);
         document.getElementById('edit-prod-price-final').value = parseFloat(p.precio_final).toFixed(2);
         document.getElementById('edit-prod-desc').value = p.descripcion || '';
+        document.getElementById('edit-prod-marca').value = p.marca || '';
         document.getElementById('edit-prod-img').value = p.imagen_url || '';
 
         const modal = new bootstrap.Modal(document.getElementById('modalEditar'));
@@ -304,6 +314,7 @@
             precio_base: parseFloat(document.getElementById('prod-price-base').value),
             precio_final: parseFloat(document.getElementById('prod-price-final').value),
             descripcion: document.getElementById('prod-desc').value,
+            marca: document.getElementById('prod-marca').value,
             imagen_url: document.getElementById('prod-img').value || 'https://images.unsplash.com/photo-1581147036324-c17da42ef5a0?w=300',
             modificado_por: currentUser && currentUser.id ? parseInt(currentUser.id.split('-').pop()) || 1 : 1
         };
@@ -339,6 +350,7 @@
             precio_base: parseFloat(document.getElementById('edit-prod-price-base').value),
             precio_final: parseFloat(document.getElementById('edit-prod-price-final').value),
             descripcion: document.getElementById('edit-prod-desc').value,
+            marca: document.getElementById('edit-prod-marca').value,
             imagen_url: document.getElementById('edit-prod-img').value,
             modificado_por: currentUser && currentUser.id ? parseInt(currentUser.id.split('-').pop()) || 1 : 1
         };

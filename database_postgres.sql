@@ -47,6 +47,7 @@ CREATE TABLE productos (
   precio_base DECIMAL(10,2) NOT NULL,
   precio_final DECIMAL(10,2) NOT NULL,
   stock INT NOT NULL DEFAULT 0,
+  marca VARCHAR(100) NULL,
   imagen_url VARCHAR(500) NULL,
   estado estado_producto NOT NULL DEFAULT 'Activo',
   modificado_por INT NULL,
