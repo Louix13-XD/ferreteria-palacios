@@ -44,10 +44,6 @@ app.get('/perfil', (req, res) => {
     res.render('perfil', { title: 'Mi Perfil', user: req.session.user });
 });
 
-app.get('/contacto', (req, res) => {
-    res.render('contacto', { title: 'Contáctanos', user: req.session.user });
-});
-
 app.get('/historial', (req, res) => {
     res.render('historial', { title: 'Mi Historial de Compras - Ferretería Palacios' });
 });
