@@ -125,6 +125,9 @@
             }
         });
 
+        // Limpiar localStorage si el servidor nos mandó al login por sesión expirada
+        localStorage.removeItem('currentUser');
+
         // Manejo de Login con Backend
         const formLogin = document.getElementById('formLogin');
         formLogin.addEventListener('submit', async (e) => {

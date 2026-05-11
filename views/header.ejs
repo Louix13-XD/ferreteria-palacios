@@ -157,7 +157,13 @@
             const adminLink = document.getElementById('admin-panel-link');
             const headerAdminBtn = document.getElementById('header-admin-btn');
             
+            // Si hay usuario en localStorage, verificamos que la página no sea Login
             if (user && userLink) {
+                if (window.location.pathname === '/login') {
+                    localStorage.removeItem('currentUser');
+                    return;
+                }
+                
                 userLink.href = '/perfil';
                 userLink.innerHTML = `<i class="bi bi-person-check-fill fs-5 text-warning" title="${user.name}"></i>`;
                 
