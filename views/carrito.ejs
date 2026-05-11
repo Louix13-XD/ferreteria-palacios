@@ -83,6 +83,8 @@
 
     function renderFullCart() {
         const container = document.getElementById('cart-table-container');
+        const subtotalEl = document.getElementById('cart-subtotal');
+        const totalEl = document.getElementById('cart-total');
 
         // Obtener carrito de localStorage
         const cart = JSON.parse(localStorage.getItem('cart')) || [];
@@ -96,8 +98,8 @@
                     <a href="/" class="btn btn-warning fw-bold px-4 mt-2">Ver Productos</a>
                 </div>
             `;
-            subtotalEl.innerText = 'S/ 0.00';
-            totalEl.innerText = 'S/ 0.00';
+            if(subtotalEl) subtotalEl.innerText = 'S/ 0.00';
+            if(totalEl) totalEl.innerText = 'S/ 0.00';
             return;
         }
 
@@ -120,14 +122,15 @@
         cart.forEach((item, index) => {
             const subtotal = item.price * item.quantity;
             total += subtotal;
+            const itemImg = item.image || item.img || '/img/logo_ferreteria.png';
             html += `
                 <tr>
                     <td>
                         <div class="d-flex align-items-center">
-                            <img src="${item.img}" class="rounded-3 me-3" style="width: 60px; height: 60px; object-fit: cover;">
+                            <img src="${itemImg}" class="rounded-3 me-3" style="width: 60px; height: 60px; object-fit: cover;">
                             <div>
                                 <h6 class="mb-0 fw-bold">${item.name}</h6>
-                                <small class="text-muted">${item.category}</small>
+                                <small class="text-muted">${item.category || 'Ferretería'}</small>
                             </div>
                         </div>
                     </td>
@@ -151,8 +154,8 @@
 
         html += `</tbody></table></div>`;
         container.innerHTML = html;
-        subtotalEl.innerText = `S/ ${total.toFixed(2)}`;
-        totalEl.innerText = `S/ ${total.toFixed(2)}`;
+        if(subtotalEl) subtotalEl.innerText = `S/ ${total.toFixed(2)}`;
+        if(totalEl) totalEl.innerText = `S/ ${total.toFixed(2)}`;
     }
 
     async function changeQty(index, delta) {
