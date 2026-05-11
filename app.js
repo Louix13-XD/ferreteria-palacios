@@ -40,7 +40,12 @@ app.get('/productos/:categoria', (req, res) => {
 });
 
 app.get('/perfil', (req, res) => {
-    res.render('perfil', { title: 'Mi Perfil - Ferretería Palacios' });
+    if (!req.session.userId) return res.redirect('/login');
+    res.render('perfil', { title: 'Mi Perfil', user: req.session.user });
+});
+
+app.get('/contacto', (req, res) => {
+    res.render('contacto', { title: 'Contáctanos', user: req.session.user });
 });
 
 app.get('/historial', (req, res) => {
