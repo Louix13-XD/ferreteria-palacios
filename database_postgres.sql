@@ -125,9 +125,9 @@ VALUES (
 );
 
 INSERT INTO categorias (nombre) VALUES 
-('Herramientas Manuales'),
-('Herramientas Eléctricas'),
-('Pinturas y Acabados'),
+('Herramientas'),
+('Pintura'),
+('Electricidad'),
+('Plomería'),
 ('Construcción'),
-('Electricidad e Iluminación'),
-('Gasfitería');
+('Jardinería');
