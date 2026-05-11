@@ -129,6 +129,7 @@ app.post('/api/login', async (req, res) => {
                 name: user.nombre_completo,
                 email: user.email,
                 phone: user.celular,
+                address: user.direccion_zona,
                 role: user.rol === 'Cliente' ? 'client' : user.rol
             }
         });
@@ -140,7 +141,7 @@ app.post('/api/login', async (req, res) => {
 
 app.post('/api/register', async (req, res) => {
     try {
-        const { name, email, phone, password } = req.body;
+        const { name, email, phone, password, address } = req.body;
         const check = await db.query('SELECT * FROM usuarios WHERE email = $1', [email]);
         if (check.rows.length > 0) {
             return res.status(400).json({ success: false, message: 'El correo ya está registrado' });
@@ -148,8 +149,8 @@ app.post('/api/register', async (req, res) => {
 
         const hashedPass = await bcrypt.hash(password, 10);
         await db.query(
-            'INSERT INTO usuarios (nombre_completo, email, celular, password, rol, estado) VALUES ($1, $2, $3, $4, $5, $6)',
-            [name, email, phone, hashedPass, 'Cliente', 'Activo']
+            'INSERT INTO usuarios (nombre_completo, email, celular, password, direccion_zona, rol, estado) VALUES ($1, $2, $3, $4, $5, $6, $7)',
+            [name, email, phone, hashedPass, address, 'Cliente', 'Activo']
         );
 
         res.json({ success: true, message: 'Cuenta creada con éxito' });

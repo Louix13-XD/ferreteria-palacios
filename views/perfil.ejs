@@ -32,7 +32,7 @@
                         </div>
                         <div class="col-12">
                             <label class="form-label text-muted small fw-bold text-uppercase">Dirección Principal</label>
-                            <p class="fs-5 fw-semibold border-bottom pb-2">Av. Las Herramientas 456, Lima, Perú</p>
+                            <p class="fs-5 fw-semibold border-bottom pb-2" id="profile-address">Cargando...</p>
                         </div>
                     </div>
                     <div class="mt-5 d-flex gap-2">
@@ -67,11 +67,11 @@
                         </div>
                         <div class="mb-3">
                             <label class="form-label fw-bold small">Teléfono</label>
-                            <input type="text" class="form-control" id="edit-telefono" value="+51 987 654 321">
+                            <input type="text" class="form-control" id="edit-telefono">
                         </div>
                         <div class="mb-3">
                             <label class="form-label fw-bold small">Dirección</label>
-                            <textarea class="form-control" id="edit-direccion" rows="2">Av. Las Herramientas 456, Lima, Perú</textarea>
+                            <textarea class="form-control" id="edit-direccion" rows="2"></textarea>
                         </div>
                         <button type="submit" class="btn btn-dark w-100 fw-bold">Guardar Cambios</button>
                     </form>
@@ -91,7 +91,6 @@
         }
 
         // Llenar datos dinámicos
-        const initials = currentUser.name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
         document.querySelector('.card-header img').src = `https://ui-avatars.com/api/?name=${encodeURIComponent(currentUser.name)}&background=212529&color=fff&size=128`;
         document.querySelector('.card-header h3').innerText = currentUser.name;
         document.querySelector('.card-header p').style.display = 'none';
@@ -104,11 +103,14 @@
         
         const labels = document.querySelectorAll('.fs-5.fw-semibold');
         labels[0].innerText = currentUser.name;
-        labels[1].innerText = currentUser.email || (currentUser.role === 'admin' || currentUser.role === 'Admin' ? 'admin@ferremax.com' : 'usuario@email.com');
-        labels[2].innerText = currentUser.phone || '+51 000 000 000';
+        labels[1].innerText = currentUser.email || 'usuario@email.com';
+        labels[2].innerText = currentUser.phone || '---';
+        document.getElementById('profile-address').innerText = currentUser.address || 'Sin dirección registrada';
         
         // Pre-llenar modal
         document.getElementById('edit-nombre').value = currentUser.name;
+        document.getElementById('edit-telefono').value = currentUser.phone || '';
+        document.getElementById('edit-direccion').value = currentUser.address || '';
     });
 
     function logout() {
@@ -118,13 +120,23 @@
         }
     }
 
-    document.getElementById('formEditProfile')?.addEventListener('submit', function(e) {
+    document.getElementById('formEditProfile')?.addEventListener('submit', async function(e) {
         e.preventDefault();
         const nuevoNombre = document.getElementById('edit-nombre').value;
+        const nuevoTelefono = document.getElementById('edit-telefono').value;
+        const nuevaDireccion = document.getElementById('edit-direccion').value;
+        
         const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+        
+        // En una implementación real, aquí se llamaría a una API para actualizar la BD
+        // Por ahora, actualizamos el localStorage para que se refleje en la vista
         currentUser.name = nuevoNombre;
+        currentUser.phone = nuevoTelefono;
+        currentUser.address = nuevaDireccion;
+        
         localStorage.setItem('currentUser', JSON.stringify(currentUser));
         
+        alert('Perfil actualizado (Localmente). Próximamente se sincronizará con la base de datos.');
         location.reload();
     });
 </script>
