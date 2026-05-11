@@ -43,6 +43,7 @@
                         <tr class="small text-uppercase text-muted">
                             <th class="ps-4">Cliente</th>
                             <th>Correo Electrónico</th>
+                            <th>Celular</th>
                             <th>Estado</th>
                             <th class="text-end pe-4">Acciones</th>
                         </tr>
@@ -55,7 +56,50 @@
         </div>
     </main>
 
+    <!-- Modal Editar Cliente -->
+    <div class="modal fade" id="modalEditarCliente" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header bg-dark text-white">
+                    <h5 class="modal-title fw-bold">Perfil del Cliente</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <form id="formEditarCliente">
+                        <input type="hidden" id="edit-client-id">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold small">Nombre Completo</label>
+                            <input type="text" class="form-control" id="edit-client-name" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold small">Correo Electrónico</label>
+                            <input type="email" class="form-control" id="edit-client-email" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold small">Número Celular</label>
+                            <input type="tel" class="form-control" id="edit-client-phone">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold small">Estado de Cuenta</label>
+                            <select class="form-select" id="edit-client-status">
+                                <option value="Activo">Activo</option>
+                                <option value="Inactivo">Inactivo / Bloqueado</option>
+                            </select>
+                        </div>
+                        <div class="mb-4">
+                            <label class="form-label fw-bold small">Nueva Contraseña (Dejar en blanco para no cambiar)</label>
+                            <input type="password" class="form-control" id="edit-client-pass">
+                        </div>
+                        <button type="submit" class="btn btn-warning w-100 fw-bold py-2 shadow">GUARDAR CAMBIOS</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
+        let allClients = [];
+
         document.addEventListener('DOMContentLoaded', () => {
             fetchClients();
         });
@@ -65,7 +109,8 @@
                 const res = await fetch('/api/usuarios?rol=Cliente');
                 const data = await res.json();
                 if (data.success) {
-                    renderClients(data.usuarios);
+                    allClients = data.usuarios;
+                    renderClients(allClients);
                 }
             } catch (e) {
                 console.error('Error al cargar clientes:', e);
@@ -79,11 +124,15 @@
             tbody.innerHTML = '';
 
             if(users.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="4" class="text-center py-5 text-muted">No hay clientes registrados todavía.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="5" class="text-center py-5 text-muted">No hay clientes registrados todavía.</td></tr>';
                 return;
             }
 
             users.forEach((user) => {
+                const statusBadge = user.estado === 'Activo' 
+                    ? '<span class="badge bg-success bg-opacity-10 text-success px-3 rounded-pill">Activo</span>'
+                    : '<span class="badge bg-danger bg-opacity-10 text-danger px-3 rounded-pill">Inactivo</span>';
+
                 tbody.innerHTML += `
                     <tr>
                         <td class="ps-4">
@@ -96,15 +145,62 @@
                             </div>
                         </td>
                         <td class="text-muted">${user.email}</td>
-                        <td><span class="badge bg-success bg-opacity-10 text-success px-3 rounded-pill">${user.estado || 'Activo'}</span></td>
+                        <td class="text-muted">${user.celular || '---'}</td>
+                        <td>${statusBadge}</td>
                         <td class="text-end pe-4">
-                            <button class="btn btn-sm btn-outline-dark me-1" title="Ver detalles"><i class="bi bi-eye"></i></button>
+                            <button class="btn btn-sm btn-outline-dark me-1" onclick="openEditClient(${user.id})" title="Ver detalles"><i class="bi bi-eye"></i></button>
                             <button class="btn btn-sm btn-outline-danger" onclick="deleteClient(${user.id})" title="Eliminar cuenta"><i class="bi bi-trash"></i></button>
                         </td>
                     </tr>
                 `;
             });
         }
+
+        function openEditClient(id) {
+            const client = allClients.find(c => c.id === id);
+            if (!client) return;
+
+            document.getElementById('edit-client-id').value = client.id;
+            document.getElementById('edit-client-name').value = client.nombre_completo;
+            document.getElementById('edit-client-email').value = client.email;
+            document.getElementById('edit-client-phone').value = client.celular || '';
+            document.getElementById('edit-client-status').value = client.estado || 'Activo';
+            document.getElementById('edit-client-pass').value = '';
+
+            const modal = new bootstrap.Modal(document.getElementById('modalEditarCliente'));
+            modal.show();
+        }
+
+        document.getElementById('formEditarCliente').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const id = document.getElementById('edit-client-id').value;
+            
+            const payload = {
+                nombre_completo: document.getElementById('edit-client-name').value,
+                email: document.getElementById('edit-client-email').value,
+                celular: document.getElementById('edit-client-phone').value,
+                estado: document.getElementById('edit-client-status').value,
+                password: document.getElementById('edit-client-pass').value,
+                rol: 'Cliente' // Aseguramos que siga siendo cliente
+            };
+
+            try {
+                const res = await fetch(`/api/usuarios/${id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+                if (data.success) {
+                    bootstrap.Modal.getInstance(document.getElementById('modalEditarCliente')).hide();
+                    fetchClients();
+                } else {
+                    alert('Error al actualizar: ' + data.message);
+                }
+            } catch (e) {
+                alert('Error de conexión');
+            }
+        });
 
         async function deleteClient(id) {
             if(confirm('¿Estás seguro de que deseas eliminar la cuenta de este cliente? Esta acción no se puede deshacer.')) {
