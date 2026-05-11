@@ -164,13 +164,17 @@
                 if(dataP.success) products = dataP.products;
             } catch(e) { console.error("Error conectando a BD:", e); }
             
-            const gross = sales.reduce((acc, s) => acc + parseFloat(s.total_venta || 0), 0);
-            const net = gross / 1.18;
+            // Filtrar solo las ventas de HOY
+            const today = new Date().toLocaleDateString();
+            const salesToday = sales.filter(s => new Date(s.fecha_compra).toLocaleDateString() === today);
+            
+            const grossToday = salesToday.reduce((acc, s) => acc + parseFloat(s.total_venta || 0), 0);
+            const netToday = grossToday / 1.18;
 
-            document.getElementById('stat-sales-today').innerText = `S/ ${gross.toFixed(2)}`;
-            document.getElementById('dash-gross-profit').innerText = `S/ ${gross.toFixed(2)}`;
-            document.getElementById('dash-net-profit').innerText = `S/ ${net.toFixed(2)}`;
-            document.getElementById('stat-orders-count').innerText = sales.length;
+            document.getElementById('stat-sales-today').innerText = `S/ ${grossToday.toFixed(2)}`;
+            document.getElementById('dash-gross-profit').innerText = `S/ ${grossToday.toFixed(2)}`;
+            document.getElementById('dash-net-profit').innerText = `S/ ${netToday.toFixed(2)}`;
+            document.getElementById('stat-orders-count').innerText = salesToday.length;
             
             const lowStock = products.filter(p => p.stock < 5).length;
             document.getElementById('stat-critical-stock').innerText = lowStock;
