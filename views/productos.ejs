@@ -16,33 +16,26 @@
                 
                 <div class="mb-4">
                     <h6 class="fw-semibold">Precio</h6>
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" id="p1">
-                        <label class="form-check-label" for="p1">S/ 0 - S/ 50</label>
-                    </div>
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" id="p2">
-                        <label class="form-check-label" for="p2">S/ 50 - S/ 200</label>
-                    </div>
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" id="p3">
-                        <label class="form-check-label" for="p3">Más de S/ 200</label>
+                    <div id="price-filters">
+                        <div class="form-check">
+                            <input class="form-check-input filter-price" type="checkbox" id="p1" value="0-50">
+                            <label class="form-check-label" for="p1">S/ 0 - S/ 50</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input filter-price" type="checkbox" id="p2" value="50-200">
+                            <label class="form-check-label" for="p2">S/ 50 - S/ 200</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input filter-price" type="checkbox" id="p3" value="200+">
+                            <label class="form-check-label" for="p3">Más de S/ 200</label>
+                        </div>
                     </div>
                 </div>
 
                 <div class="mb-4">
                     <h6 class="fw-semibold">Marca</h6>
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" id="m1">
-                        <label class="form-check-label" for="m1">Bosch</label>
-                    </div>
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" id="m2">
-                        <label class="form-check-label" for="m2">Stanley</label>
-                    </div>
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" id="m3">
-                        <label class="form-check-label" for="m3">Makita</label>
+                    <div id="brands-filter-container">
+                        <p class="text-muted small">Cargando marcas...</p>
                     </div>
                 </div>
             </div>

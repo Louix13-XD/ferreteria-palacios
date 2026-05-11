@@ -40,14 +40,12 @@ function renderProducts(products, containerId = 'featured-products') {
                         </button>
                     </div>
                     <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-start mb-1">
-                            <small class="text-muted text-uppercase fw-bold" style="font-size: 0.7rem;">${product.category}</small>
-                            ${product.brand ? `<span class="badge bg-dark text-white border-0 small" style="font-size: 0.65rem;">${product.brand}</span>` : ''}
-                        </div>
+                        <small class="text-muted text-uppercase fw-bold" style="font-size: 0.7rem;">${product.category}</small>
                         <a href="/producto/${product.id}" class="text-decoration-none text-dark">
-                            <h5 class="card-title fw-bold mb-2">${product.name}</h5>
+                            <h5 class="card-title fw-bold mb-1">${product.name}</h5>
                         </a>
-                        <p class="card-text text-warning fw-bold fs-5 mb-0">S/ ${product.price.toFixed(2)}</p>
+                        ${product.brand ? `<div class="text-warning small fw-bold mb-2">${product.brand}</div>` : ''}
+                        <p class="card-text text-dark fw-bold fs-5 mb-0">S/ ${product.price.toFixed(2)}</p>
                     </div>
                     <div class="card-footer bg-transparent border-0 pb-3">
                         ${isOutStock ? `
@@ -189,7 +187,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 function setupCategoryFilters(products) {
     // 1. Extraer marcas únicas
-    const brandsContainer = document.querySelector('aside .mb-4:nth-child(2) div') || document.querySelector('.mb-4:last-child');
+    const brandsContainer = document.getElementById('brands-filter-container');
     if (brandsContainer) {
         const brands = [...new Set(products.map(p => p.brand).filter(b => b))];
         let brandsHTML = '';
