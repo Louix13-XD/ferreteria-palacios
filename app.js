@@ -176,11 +176,50 @@ app.post('/api/register', async (req, res) => {
 // --- APIS DE INVENTARIO ---
 app.get('/api/ventas', async (req, res) => {
     try {
-        const result = await db.query('SELECT * FROM ventas ORDER BY fecha_compra DESC');
+        const result = await db.query(`
+            SELECT v.*, u.nombre as cliente_nombre 
+            FROM ventas v 
+            LEFT JOIN usuarios u ON v.cliente_id = u.id 
+            ORDER BY v.fecha_compra DESC
+        `);
         res.json({ success: true, ventas: result.rows });
     } catch (error) {
         console.error(error);
         res.status(500).json({ success: false, message: 'Error al obtener ventas' });
+    }
+});
+
+// Obtener detalles de una venta específica (para el ojo en logística)
+app.get('/api/ventas/detalle/:codigo', async (req, res) => {
+    const { codigo } = req.params;
+    try {
+        // Obtener la venta y el nombre del cliente
+        const ventaRes = await db.query(`
+            SELECT v.*, u.nombre as cliente_nombre 
+            FROM ventas v 
+            LEFT JOIN usuarios u ON v.cliente_id = u.id 
+            WHERE v.codigo_boleta = $1`, 
+            [codigo]
+        );
+        
+        if (ventaRes.rows.length === 0) return res.status(404).json({ success: false });
+
+        const venta = ventaRes.rows[0];
+
+        // Obtener los productos de esta venta
+        const productosRes = await db.query(`
+            SELECT * FROM detalle_ventas WHERE venta_id = $1`, 
+            [venta.id]
+        );
+
+        res.json({ 
+            success: true, 
+            venta: venta,
+            productos: productosRes.rows 
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ success: false });
     }
 });
 
