@@ -26,30 +26,27 @@
 
         <!-- Resumen de Compra -->
         <div class="col-lg-4">
-            <div class="card border-0 shadow-lg rounded-4 p-4 bg-dark text-white">
+            <div class="card bg-dark text-white p-4 border-0 rounded-4 shadow">
                 <h4 class="fw-bold mb-4">Resumen</h4>
-                
-                <div class="d-flex justify-content-between mb-3">
-                    <span class="text-secondary">Subtotal</span>
-                    <span id="summary-subtotal">S/ 0.00</span>
+                <div class="d-flex justify-content-between mb-2 opacity-75">
+                    <span>Subtotal</span>
+                    <span id="cart-subtotal">S/ 0.00</span>
                 </div>
-                <div class="d-flex justify-content-between mb-3">
-                    <span class="text-secondary">Envío</span>
-                    <span class="text-success">Gratis</span>
+                <div class="d-flex justify-content-between mb-4 opacity-75">
+                    <span>Envío</span>
+                    <span class="text-success fw-bold">Gratis</span>
                 </div>
-                <hr class="border-secondary">
-                <div class="d-flex justify-content-between mb-4">
-                    <span class="fw-bold fs-5">Total</span>
-                    <span class="fw-bold fs-4 text-warning" id="summary-total">S/ 0.00</span>
+                <hr>
+                <div class="d-flex justify-content-between mb-4 mt-2">
+                    <span class="h5 mb-0">Total</span>
+                    <span class="h4 mb-0 text-warning fw-bold" id="cart-total">S/ 0.00</span>
                 </div>
-
-                <a href="/checkout" class="btn btn-warning w-100 fw-bold py-3 mb-3 shadow">
+                <button onclick="proceedToCheckout()" class="btn btn-warning w-100 fw-bold py-3 rounded-3 shadow-sm">
                     PROCEDER AL PAGO
-                </a>
-                
-                <div class="text-center">
-                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Visa_Inc._logo.svg/2560px-Visa_Inc._logo.svg.png" height="20" class="me-2 opacity-50" alt="Visa">
-                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Mastercard-logo.svg/1280px-Mastercard-logo.svg.png" height="20" class="opacity-50" alt="Mastercard">
+                </button>
+                <div class="text-center mt-3 opacity-50">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/5/5e/Visa_Inc._logo.svg" height="20" class="me-2" alt="Visa">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/2/2a/Mastercard-logo.svg" height="20" alt="Mastercard">
                 </div>
             </div>
 
@@ -68,14 +65,27 @@
         renderFullCart();
     });
 
+    function updateSummary(cart) {
+        const total = cart.reduce((acc, item) => acc + (item.price * item.quantity), 0);
+        document.getElementById('cart-subtotal').innerText = `S/ ${total.toFixed(2)}`;
+        document.getElementById('cart-total').innerText = `S/ ${total.toFixed(2)}`;
+    }
+
+    function proceedToCheckout() {
+        const user = JSON.parse(localStorage.getItem('currentUser'));
+        if (!user) {
+            alert('Debes iniciar sesión o registrarte para proceder al pago.');
+            window.location.href = '/login';
+        } else {
+            window.location.href = '/checkout';
+        }
+    }
+
     function renderFullCart() {
         const container = document.getElementById('cart-table-container');
-        const subtotalEl = document.getElementById('summary-subtotal');
-        const totalEl = document.getElementById('summary-total');
 
-        // Obtener carrito de localStorage (o del array global si persiste en la sesión)
-        // Por ahora usamos el array global de main.js si está disponible, 
-        // pero en una App real se cargaría de la DB o LocalStorage.
+        // Obtener carrito de localStorage
+        const cart = JSON.parse(localStorage.getItem('cart')) || [];
         
         if (cart.length === 0) {
             container.innerHTML = `

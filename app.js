@@ -93,7 +93,8 @@ app.get('/admin/reportes', (req, res) => {
 });
 
 app.get('/checkout', (req, res) => {
-    res.render('checkout', { title: 'Pago Seguro - Ferretería Palacios' });
+    if (!req.session.userId) return res.redirect('/login');
+    res.render('checkout', { title: 'Finalizar Compra - Ferretería Palacios', user: req.session.user });
 });
 
 app.get('/boleta/:id', (req, res) => {
