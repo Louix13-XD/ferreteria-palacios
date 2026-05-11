@@ -61,11 +61,19 @@
         </div>
 
         <div class="row g-4">
-            <div class="col-md-12">
+            <div class="col-md-8">
                 <div class="card border-0 shadow-sm rounded-4 p-4">
                     <h5 class="fw-bold mb-4">Crecimiento Mensual de Ingresos</h5>
                     <div style="height: 400px;">
                         <canvas id="growthChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card border-0 shadow-sm rounded-4 p-4 h-100">
+                    <h5 class="fw-bold mb-4">Stock por Categoría</h5>
+                    <div style="height: 350px;">
+                        <canvas id="stockChart"></canvas>
                     </div>
                 </div>
             </div>
@@ -121,6 +129,39 @@
                         y: { beginAtZero: true, grid: { drawBorder: false, color: '#eee' } },
                         x: { grid: { display: false } }
                     }
+                }
+            });
+
+            // Gráfico de Stock por Categoría
+            let products = [];
+            try {
+                const resP = await fetch('/api/productos');
+                const dataP = await resP.json();
+                if(dataP.success) products = dataP.products;
+            } catch(e) { console.error("Error al obtener productos", e); }
+
+            const cats = {};
+            products.forEach(p => {
+                const catName = p.category_name || 'Sin Categoría';
+                cats[catName] = (cats[catName] || 0) + p.stock;
+            });
+
+            const ctxStock = document.getElementById('stockChart').getContext('2d');
+            new Chart(ctxStock, {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(cats).length > 0 ? Object.keys(cats) : ['Sin Stock'],
+                    datasets: [{
+                        data: Object.keys(cats).length > 0 ? Object.values(cats) : [1],
+                        backgroundColor: ['#ffc107', '#212529', '#0d6efd', '#198754', '#dc3545', '#6c757d'],
+                        borderWidth: 0
+                    }]
+                },
+                options: { 
+                    responsive: true, 
+                    maintainAspectRatio: false, 
+                    cutout: '70%',
+                    plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 10 } } } }
                 }
             });
         });
