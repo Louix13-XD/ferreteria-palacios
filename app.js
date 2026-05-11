@@ -85,8 +85,7 @@ app.get('/admin/personal', (req, res) => {
 });
 
 app.get('/admin/logistica', (req, res) => {
-    if (!req.session.userId) return res.redirect('/login');
-    res.render('admin_logistica', { title: 'Gestión de Logística - Ferretería Palacios', user: req.session.user });
+    res.render('admin_logistica', { title: 'Gestión de Logística - Ferretería Palacios' });
 });
 
 app.get('/admin/ventas', (req, res) => {
