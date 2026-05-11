@@ -170,13 +170,28 @@ app.post('/api/register', async (req, res) => {
 });
 
 // --- APIS DE INVENTARIO ---
-app.get('/api/categorias', async (req, res) => {
+app.get('/api/ventas', async (req, res) => {
     try {
-        const result = await db.query('SELECT * FROM categorias');
-        res.json({ success: true, categories: result.rows });
+        const result = await db.query('SELECT * FROM ventas ORDER BY fecha_compra DESC');
+        res.json({ success: true, ventas: result.rows });
     } catch (error) {
         console.error(error);
-        res.status(500).json({ success: false });
+        res.status(500).json({ success: false, message: 'Error al obtener ventas' });
+    }
+});
+
+// Confirmar Entrega Logística
+app.post('/api/ventas/actualizar-logistica', async (req, res) => {
+    const { codigo, estado } = req.body;
+    try {
+        await db.query(
+            'UPDATE ventas SET estado_logistico = $1 WHERE codigo_boleta = $2',
+            [estado, codigo]
+        );
+        res.json({ success: true, message: 'Estado logístico actualizado' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ success: false, message: 'Error al actualizar estado' });
     }
 });
 

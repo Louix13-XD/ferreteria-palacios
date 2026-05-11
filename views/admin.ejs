@@ -36,9 +36,7 @@
                 <!-- Botón de fecha removido a petición del usuario -->
                 <img src="https://ui-avatars.com/api/?name=Admin&background=ffc107&color=212529" class="rounded-circle shadow-sm" width="45">
             </div>
-        </header>
-
-        <!-- Métricas Principales -->
+        </header>        <!-- Métricas de Logística Pendiente -->
         <div class="row row-cols-1 row-cols-md-5 g-4 mb-5">
             <!-- Ventas Hoy -->
             <div class="col">
@@ -47,38 +45,37 @@
                         <div class="bg-warning bg-opacity-10 p-2 rounded-3">
                             <i class="bi bi-currency-dollar text-warning fs-5"></i>
                         </div>
-                        <span class="badge bg-success bg-opacity-10 text-success rounded-pill extra-small">+0%</span>
                     </div>
                     <p class="text-muted extra-small fw-bold text-uppercase mb-1">Ventas Hoy</p>
                     <h4 class="fw-bold mb-0" id="stat-sales-today">S/ 0.00</h4>
                 </div>
             </div>
 
-            <!-- Ganancia Neta -->
+            <!-- Delivery Pendiente -->
             <div class="col">
-                <div class="card stat-card shadow-sm p-3 border-0 h-100">
+                <div class="card stat-card shadow-sm p-3 border-0 h-100 border-start border-warning border-4">
                     <div class="d-flex justify-content-between align-items-start mb-2">
-                        <div class="bg-success bg-opacity-10 p-2 rounded-3">
-                            <i class="bi bi-cash-stack text-success fs-5"></i>
+                        <div class="bg-warning bg-opacity-25 p-2 rounded-3">
+                            <i class="bi bi-truck text-warning fs-5"></i>
                         </div>
+                        <span class="badge bg-warning text-dark rounded-pill extra-small" id="stat-delivery-pending">0</span>
                     </div>
-                    <p class="text-muted extra-small fw-bold text-uppercase mb-1">Ganancia Neta</p>
-                    <h4 class="fw-bold mb-0 text-success" id="dash-net-profit">S/ 0.00</h4>
-                    <small class="text-muted extra-small d-block">Bruto: <span id="dash-gross-profit">S/ 0.00</span></small>
+                    <p class="text-muted extra-small fw-bold text-uppercase mb-1">Delivery Pendiente</p>
+                    <h4 class="fw-bold mb-0">Por Enviar</h4>
                 </div>
             </div>
 
-            <!-- Pedidos -->
+            <!-- Por Recoger en Tienda -->
             <div class="col">
-                <div class="card stat-card shadow-sm p-3 border-0 h-100">
+                <div class="card stat-card shadow-sm p-3 border-0 h-100 border-start border-info border-4">
                     <div class="d-flex justify-content-between align-items-start mb-2">
-                        <div class="bg-primary bg-opacity-10 p-2 rounded-3">
-                            <i class="bi bi-cart-check text-primary fs-5"></i>
+                        <div class="bg-info bg-opacity-25 p-2 rounded-3">
+                            <i class="bi bi-shop text-info fs-5"></i>
                         </div>
+                        <span class="badge bg-info text-white rounded-pill extra-small" id="stat-pickup-pending">0</span>
                     </div>
-                    <p class="text-muted extra-small fw-bold text-uppercase mb-1">Total Pedidos</p>
-                    <h4 class="fw-bold mb-0" id="stat-orders-count">0</h4>
-                    <small class="text-primary extra-small d-block">En el sistema</small>
+                    <p class="text-muted extra-small fw-bold text-uppercase mb-1">Recojo en Tienda</p>
+                    <h4 class="fw-bold mb-0">En Espera</h4>
                 </div>
             </div>
 
@@ -92,7 +89,6 @@
                     </div>
                     <p class="text-muted extra-small fw-bold text-uppercase mb-1">Stock Bajo</p>
                     <h4 class="fw-bold mb-0 text-danger" id="stat-critical-stock">0</h4>
-                    <small class="text-danger extra-small d-block">Reponer pronto</small>
                 </div>
             </div>
 
@@ -100,14 +96,32 @@
             <div class="col">
                 <div class="card stat-card shadow-sm p-3 border-0 h-100">
                     <div class="d-flex justify-content-between align-items-start mb-2">
-                        <div class="bg-info bg-opacity-10 p-2 rounded-3">
-                            <i class="bi bi-boxes text-info fs-5"></i>
+                        <div class="bg-dark bg-opacity-10 p-2 rounded-3">
+                            <i class="bi bi-boxes text-dark fs-5"></i>
                         </div>
                     </div>
                     <p class="text-muted extra-small fw-bold text-uppercase mb-1">Productos</p>
                     <h4 class="fw-bold mb-0" id="stat-total-products">0</h4>
-                    <small class="text-muted extra-small d-block">Registrados</small>
                 </div>
+            </div>
+        </div>
+
+        <!-- Buscador de Despacho Rápido -->
+        <div class="card border-0 shadow-sm rounded-4 p-4 mb-5 bg-dark text-white">
+            <div class="row align-items-center">
+                <div class="col-md-7">
+                    <h5 class="fw-bold mb-1"><i class="bi bi-search me-2 text-warning"></i>Control de Despacho Rápido</h5>
+                    <p class="text-secondary small mb-md-0">Ingresa el código de boleta para confirmar la entrega del producto.</p>
+                </div>
+                <div class="col-md-5">
+                    <div class="input-group">
+                        <input type="text" id="dispatch-search" class="form-control form-control-lg border-0" placeholder="Ej: 105" style="border-radius: 12px 0 0 12px;">
+                        <button class="btn btn-warning fw-bold px-4" style="border-radius: 0 12px 12px 0;">BUSCAR</button>
+                    </div>
+                </div>
+            </div>
+            <div id="search-result" class="mt-3 d-none">
+                <!-- Aquí se cargará el resultado de la búsqueda -->
             </div>
         </div>
 
@@ -126,27 +140,27 @@
             </div>
         </div>
 
-        <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+        <!-- Tabla de Pedidos en Espera -->
+        <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-5">
             <div class="p-4 border-bottom bg-white d-flex justify-content-between align-items-center">
-                <h5 class="fw-bold mb-0">Últimas Ventas</h5>
-                <a href="/admin/reportes" class="btn btn-outline-warning btn-sm fw-bold">Ver Reportes</a>
+                <h5 class="fw-bold mb-0">Pedidos Pendientes de Despacho</h5>
+                <span class="badge bg-danger bg-opacity-10 text-danger fw-bold" id="pending-badge-count">0 Pendientes</span>
             </div>
             <div class="table-responsive">
                 <table class="table table-hover align-middle mb-0">
                     <thead class="bg-light">
                         <tr class="small text-uppercase text-muted">
-                            <th class="ps-4">Cliente</th>
+                            <th class="ps-4">Código</th>
+                            <th>Cliente</th>
+                            <th>Tipo</th>
                             <th>Monto</th>
-                            <th>Estado</th>
                             <th class="text-end pe-4">Acción</th>
                         </tr>
                     </thead>
-                    <tbody id="dash-sales-body">
-                        <!-- Ventas dinámicas -->
+                    <tbody id="dash-pending-body">
+                        <!-- Pedidos pendientes -->
                     </tbody>
-                </table>
-            </div>
-        </div>
+                   </div>
     </main>
 
     <script>
@@ -154,141 +168,171 @@
             let sales = [];
             let products = [];
             
-            try {
-                const resS = await fetch('/api/ventas');
-                const dataS = await resS.json();
-                if(dataS.success) sales = dataS.ventas;
+            async function loadData() {
+                try {
+                    const resS = await fetch('/api/ventas');
+                    const dataS = await resS.json();
+                    if(dataS.success) sales = dataS.ventas;
 
-                const resP = await fetch('/api/productos');
-                const dataP = await resP.json();
-                if(dataP.success) products = dataP.products;
-            } catch(e) { console.error("Error conectando a BD:", e); }
-            
-            // Filtrar solo las ventas de HOY
-            const today = new Date().toLocaleDateString();
-            const salesToday = sales.filter(s => new Date(s.fecha_compra).toLocaleDateString() === today);
-            
-            const grossToday = salesToday.reduce((acc, s) => acc + parseFloat(s.total_venta || 0), 0);
-            const netToday = grossToday / 1.18;
-
-            document.getElementById('stat-sales-today').innerText = `S/ ${grossToday.toFixed(2)}`;
-            document.getElementById('dash-gross-profit').innerText = `S/ ${grossToday.toFixed(2)}`;
-            document.getElementById('dash-net-profit').innerText = `S/ ${netToday.toFixed(2)}`;
-            document.getElementById('stat-orders-count').innerText = salesToday.length;
-            
-            const lowStock = products.filter(p => p.stock < 5).length;
-            document.getElementById('stat-critical-stock').innerText = lowStock;
-            document.getElementById('stat-total-products').innerText = products.length;
-
-            const tbody = document.getElementById('dash-sales-body');
-            if(sales.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="4" class="text-center py-4 text-muted">No hay ventas registradas.</td></tr>';
-            } else {
-                sales.slice(0, 5).forEach(sale => {
-                    const custName = sale.cliente_nombre || 'Desconocido';
-                    const code = sale.codigo_boleta || 'ORD-000';
-                    const total = parseFloat(sale.total_venta || 0);
-                    const status = sale.estado_pedido || 'Completado';
+                    const resP = await fetch('/api/productos');
+                    const dataP = await resP.json();
+                    if(dataP.success) products = dataP.products;
                     
-                    tbody.innerHTML += `
-                        <tr>
-                            <td class="ps-4">
-                                <div class="d-flex align-items-center">
-                                    <div class="bg-dark text-white rounded-circle me-3 d-flex align-items-center justify-content-center" style="width: 35px; height: 35px; font-size: 12px; font-weight: bold;">
-                                        ${custName.substring(0, 2).toUpperCase()}
-                                    </div>
-                                    <div>
-                                        <p class="fw-bold mb-0">${custName}</p>
-                                        <small class="text-muted">${code}</small>
-                                    </div>
-                                </div>
-                            </td>
-                            <td><span class="fw-bold">S/ ${total.toFixed(2)}</span></td>
-                            <td><span class="badge bg-success bg-opacity-10 text-success px-3">${status}</span></td>
-                            <td class="text-end pe-4">
-                                <a href="/boleta/${code.replace('ORD-', '')}" class="btn btn-light btn-sm"><i class="bi bi-eye"></i></a>
-                            </td>
-                        </tr>
-                    `;
-                });
+                    updateUI();
+                } catch(e) { console.error("Error conectando a BD:", e); }
             }
 
-            const ctxSales = document.getElementById('salesChart').getContext('2d');
-            
-            // Generar etiquetas de los últimos 7 días dinámicamente
-            const last7DaysLabels = [];
-            const last7DaysData = new Array(7).fill(0);
-            const daysNames = ['Dom', 'Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab'];
-            
-            for (let i = 6; i >= 0; i--) {
-                const d = new Date();
-                d.setDate(d.getDate() - i);
-                last7DaysLabels.push(daysNames[d.getDay()]);
+            function updateUI() {
+                // 1. Métricas de hoy
+                const today = new Date().toLocaleDateString();
+                const salesToday = sales.filter(s => new Date(s.fecha_compra).toLocaleDateString() === today);
+                const grossToday = salesToday.reduce((acc, s) => acc + parseFloat(s.total_venta || 0), 0);
+                document.getElementById('stat-sales-today').innerText = `S/ ${grossToday.toFixed(2)}`;
+
+                // 2. Métricas de Logística (Solo "En espera")
+                const pending = sales.filter(s => s.estado_logistico === 'En espera');
+                const deliveryPending = pending.filter(s => s.tipo_entrega === 'delivery');
+                const pickupPending = pending.filter(s => s.tipo_entrega === 'recojo');
+
+                document.getElementById('stat-delivery-pending').innerText = deliveryPending.length;
+                document.getElementById('stat-pickup-pending').innerText = pickupPending.length;
+                document.getElementById('pending-badge-count').innerText = `${pending.length} Pendientes`;
+
+                // 3. Stock y Productos
+                const lowStock = products.filter(p => p.stock < 5).length;
+                document.getElementById('stat-critical-stock').innerText = lowStock;
+                document.getElementById('stat-total-products').innerText = products.length;
+
+                // 4. Tabla de Pendientes
+                const tbody = document.getElementById('dash-pending-body');
+                tbody.innerHTML = '';
+                if(pending.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="5" class="text-center py-4 text-muted">No hay pedidos pendientes de despacho.</td></tr>';
+                } else {
+                    pending.slice(0, 10).forEach(sale => {
+                        const code = sale.codigo_boleta || 'ORD-000';
+                        const typeIcon = sale.tipo_entrega === 'delivery' ? '🚚' : '🏠';
+                        const typeText = sale.tipo_entrega === 'delivery' ? 'Delivery' : 'Tienda';
+                        
+                        tbody.innerHTML += `
+                            <tr>
+                                <td class="ps-4 fw-bold">#${code.replace('ORD-', '')}</td>
+                                <td>${sale.cliente_nombre || 'Cliente'}</td>
+                                <td><span class="badge ${sale.tipo_entrega === 'delivery' ? 'bg-warning text-dark' : 'bg-info'} px-2">${typeIcon} ${typeText}</span></td>
+                                <td class="fw-bold">S/ ${parseFloat(sale.total_venta).toFixed(2)}</td>
+                                <td class="text-end pe-4">
+                                    <button class="btn btn-dark btn-sm fw-bold" onclick="confirmDelivery('${code}')">ENTREGADO</button>
+                                </td>
+                            </tr>
+                        `;
+                    });
+                }
                 
-                // Filtrar ventas de este día específico
-                const daySales = sales.filter(s => {
-                    const sDate = new Date(s.fecha_compra);
-                    return sDate.toLocaleDateString() === d.toLocaleDateString();
-                });
-                const dayTotal = daySales.reduce((acc, s) => acc + parseFloat(s.total_venta || 0), 0);
-                last7DaysData[6 - i] = dayTotal;
+                renderCharts();
             }
 
-            new Chart(ctxSales, {
-                type: 'line',
-                data: {
-                    labels: last7DaysLabels,
-                    datasets: [{
-                        label: 'Ventas (S/) ',
-                        data: last7DaysData,
-                        borderColor: '#ffc107',
-                        backgroundColor: 'rgba(255, 193, 7, 0.1)',
-                        fill: true, tension: 0.4, borderWidth: 3,
-                        pointBackgroundColor: '#ffc107',
-                        pointRadius: 4
-                    }]
-                },
-                options: { 
-                    responsive: true, 
-                    maintainAspectRatio: false, 
-                    plugins: { 
-                        legend: { display: false },
-                        tooltip: { callbacks: { label: (c) => `S/ ${c.raw.toFixed(2)}` } }
-                    },
-                    scales: {
-                        y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.05)' } },
-                        x: { grid: { display: false } }
+            // Buscador de Despacho
+            document.getElementById('dispatch-search').addEventListener('input', function(e) {
+                const val = e.target.value.trim().toLowerCase();
+                const resultDiv = document.getElementById('search-result');
+                
+                if(val.length > 0) {
+                    const match = sales.find(s => s.codigo_boleta.toLowerCase().includes(val) || s.codigo_boleta.replace('ORD-', '').includes(val));
+                    if(match) {
+                        resultDiv.classList.remove('d-none');
+                        resultDiv.innerHTML = `
+                            <div class="alert bg-white text-dark d-flex justify-content-between align-items-center shadow-sm border-0 mb-0">
+                                <div>
+                                    <h6 class="fw-bold mb-0">Pedido #${match.codigo_boleta.replace('ORD-', '')} - ${match.cliente_nombre}</h6>
+                                    <small class="text-muted">${match.tipo_entrega === 'delivery' ? 'Entrega a domicilio' : 'Recojo en tienda'} | S/ ${parseFloat(match.total_venta).toFixed(2)}</small>
+                                </div>
+                                <div>
+                                    ${match.estado_logistico === 'En espera' 
+                                        ? `<button class="btn btn-success fw-bold" onclick="confirmDelivery('${match.codigo_boleta}')">CONFIRMAR ENTREGA</button>`
+                                        : `<span class="badge bg-success px-3 py-2"><i class="bi bi-check-circle me-1"></i> YA ENTREGADO</span>`}
+                                </div>
+                            </div>
+                        `;
+                    } else {
+                        resultDiv.innerHTML = '<p class="text-warning small mb-0 mt-2">No se encontró ninguna boleta con ese código.</p>';
                     }
+                } else {
+                    resultDiv.classList.add('d-none');
                 }
             });
 
-            // Gráfico de Inventario por Categoría (Doughnut - Estilo Original)
-            const cats = {};
-            products.forEach(p => {
-                const catName = p.category_name || 'Sin Categoría';
-                cats[catName] = (cats[catName] || 0) + p.stock;
-            });
-            
-            const ctxInv = document.getElementById('inventoryChart').getContext('2d');
-            new Chart(ctxInv, {
-                type: 'doughnut',
-                data: {
-                    labels: Object.keys(cats).length > 0 ? Object.keys(cats) : ['Sin Stock'],
-                    datasets: [{
-                        data: Object.keys(cats).length > 0 ? Object.values(cats) : [1],
-                        backgroundColor: ['#ffc107', '#212529', '#0d6efd', '#198754', '#dc3545', '#6c757d'],
-                        borderWidth: 0
-                    }]
-                },
-                options: { 
-                    responsive: true, 
-                    maintainAspectRatio: false, 
-                    cutout: '75%',
-                    plugins: { 
-                        legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 10 } } }
+            window.confirmDelivery = async (code) => {
+                if(!confirm(`¿Confirmar que el pedido #${code.replace('ORD-', '')} ha sido entregado?`)) return;
+                
+                try {
+                    const res = await fetch('/api/ventas/actualizar-logistica', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ codigo: code, estado: 'Entregado' })
+                    });
+                    const data = await res.json();
+                    if(data.success) {
+                        alert("¡Pedido entregado con éxito!");
+                        document.getElementById('dispatch-search').value = '';
+                        document.getElementById('search-result').classList.add('d-none');
+                        loadData(); // Recargar todo
                     }
+                } catch(e) { alert("Error al actualizar"); }
+            };
+
+            function renderCharts() {
+                // (Mantenemos la lógica de Chart.js que ya funcionaba bien)
+                const ctxSales = document.getElementById('salesChart').getContext('2d');
+                const last7DaysLabels = [];
+                const last7DaysData = new Array(7).fill(0);
+                const daysNames = ['Dom', 'Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab'];
+                
+                for (let i = 6; i >= 0; i--) {
+                    const d = new Date();
+                    d.setDate(d.getDate() - i);
+                    last7DaysLabels.push(daysNames[d.getDay()]);
+                    const daySales = sales.filter(s => new Date(s.fecha_compra).toLocaleDateString() === d.toLocaleDateString());
+                    last7DaysData[6 - i] = daySales.reduce((acc, s) => acc + parseFloat(s.total_venta || 0), 0);
                 }
-            });
+
+                if(window.mySalesChart) window.mySalesChart.destroy();
+                window.mySalesChart = new Chart(ctxSales, {
+                    type: 'line',
+                    data: {
+                        labels: last7DaysLabels,
+                        datasets: [{
+                            label: 'Ventas (S/) ',
+                            data: last7DaysData,
+                            borderColor: '#ffc107',
+                            backgroundColor: 'rgba(255, 193, 7, 0.1)',
+                            fill: true, tension: 0.4, borderWidth: 3, pointRadius: 4
+                        }]
+                    },
+                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+                });
+
+                const cats = {};
+                products.forEach(p => {
+                    const catName = p.category_name || 'Sin Categoría';
+                    cats[catName] = (cats[catName] || 0) + p.stock;
+                });
+                const ctxInv = document.getElementById('inventoryChart').getContext('2d');
+                if(window.myInvChart) window.myInvChart.destroy();
+                window.myInvChart = new Chart(ctxInv, {
+                    type: 'doughnut',
+                    data: {
+                        labels: Object.keys(cats).length > 0 ? Object.keys(cats) : ['Sin Stock'],
+                        datasets: [{
+                            data: Object.keys(cats).length > 0 ? Object.values(cats) : [1],
+                            backgroundColor: ['#ffc107', '#212529', '#0d6efd', '#198754', '#dc3545', '#6c757d'],
+                            borderWidth: 0
+                        }]
+                    },
+                    options: { responsive: true, maintainAspectRatio: false, cutout: '75%', plugins: { legend: { position: 'bottom' } } }
+                });
+            }
+
+            loadData();
         });
     </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
