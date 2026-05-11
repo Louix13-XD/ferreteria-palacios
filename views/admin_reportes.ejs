@@ -213,19 +213,39 @@
             const ctx = document.getElementById('salesByCatChart').getContext('2d');
             if(salesByCatChart) salesByCatChart.destroy();
 
-            // Como filtrar las ventas por categoría requiere los detalles, 
-            // haremos una simplificación aquí o una petición si es necesario.
-            // Para mantener fluidez, simulamos o agregamos si tenemos el endpoint de stats.
-            // Pero como el filtro es dinámico, el endpoint de stats actual no sirve (es total).
-            // Implementaremos un agrupador local basado en el ID de venta si fuera necesario.
+            const range = document.getElementById('filter-range').value;
+            let url = '/api/stats/sales-by-category';
             
-            // Alternativa: Si hay pocas ventas, podemos manejarlo localmente si tuviéramos los detalles.
-            // Por ahora, mostraré un estado de carga o la distribución proporcional a las ventas filtradas.
+            if (range !== 'all') {
+                const now = new Date();
+                const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+                let startDate, endDate;
+
+                if (range === '7') {
+                    startDate = new Date(startOfToday);
+                    startDate.setDate(startDate.getDate() - 7);
+                    endDate = now;
+                } else if (range === '30') {
+                    startDate = new Date(startOfToday);
+                    startDate.setDate(startDate.getDate() - 30);
+                    endDate = now;
+                } else if (range === 'custom') {
+                    const startStr = document.getElementById('date-start').value;
+                    const endStr = document.getElementById('date-end').value;
+                    if (startStr && endStr) {
+                        startDate = new Date(startStr);
+                        endDate = new Date(endStr);
+                        endDate.setHours(23, 59, 59);
+                    }
+                }
+
+                if (startDate && endDate) {
+                    url += `?start=${startDate.toISOString()}&end=${endDate.toISOString()}`;
+                }
+            }
             
             try {
-                // Para reportes precisos por fecha, lo ideal es que el servidor lo haga.
-                // Pero para esta demo, usaremos la proporción actual de ventas por categoría
-                const res = await fetch('/api/stats/sales-by-category');
+                const res = await fetch(url);
                 const data = await res.json();
                 
                 if(data.success) {

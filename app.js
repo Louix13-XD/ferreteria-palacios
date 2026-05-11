@@ -316,18 +316,27 @@ app.get('/api/ventas/detalle/:codigo', async (req, res) => {
 });
 
 app.get('/api/stats/sales-by-category', async (req, res) => {
+    const { start, end } = req.query;
+    let query = `
+        SELECT 
+            COALESCE(c.nombre, 'Ventas Antiguas / Otros') as categoria, 
+            SUM(v.total_venta) as total
+        FROM ventas v
+        LEFT JOIN detalle_ventas dv ON v.id = dv.venta_id
+        LEFT JOIN productos p ON dv.producto_id = p.id
+        LEFT JOIN categorias c ON p.categoria_id = c.id
+    `;
+    const params = [];
+
+    if (start && end) {
+        query += ` WHERE v.fecha_compra BETWEEN $1 AND $2 `;
+        params.push(start, end);
+    }
+
+    query += ` GROUP BY COALESCE(c.nombre, 'Ventas Antiguas / Otros') ORDER BY total DESC`;
+
     try {
-        const result = await db.query(`
-            SELECT 
-                COALESCE(c.nombre, 'Ventas Antiguas / Otros') as categoria, 
-                SUM(v.total_venta) as total
-            FROM ventas v
-            LEFT JOIN detalle_ventas dv ON v.id = dv.venta_id
-            LEFT JOIN productos p ON dv.producto_id = p.id
-            LEFT JOIN categorias c ON p.categoria_id = c.id
-            GROUP BY COALESCE(c.nombre, 'Ventas Antiguas / Otros')
-            ORDER BY total DESC
-        `);
+        const result = await db.query(query, params);
         res.json({ success: true, stats: result.rows });
     } catch (error) {
         console.error(error);
