@@ -71,11 +71,39 @@
         document.getElementById('cart-total').innerText = `S/ ${total.toFixed(2)}`;
     }
 
-    function proceedToCheckout() {
+    async function proceedToCheckout() {
         const user = JSON.parse(localStorage.getItem('currentUser'));
+        const cart = JSON.parse(localStorage.getItem('cart')) || [];
+
+        if (cart.length === 0) {
+            Swal.fire({
+                title: 'Carrito vacío',
+                text: 'Añade algunos productos antes de proceder al pago.',
+                icon: 'info',
+                confirmButtonColor: '#ffc107',
+                confirmButtonText: 'Ir a la tienda'
+            }).then(() => { window.location.href = '/'; });
+            return;
+        }
+
         if (!user) {
-            alert('Debes iniciar sesión o registrarte para proceder al pago.');
-            window.location.href = '/login';
+            const result = await Swal.fire({
+                title: '¡Casi listo!',
+                text: 'Debes iniciar sesión o registrarte para proceder al pago y asegurar tu pedido.',
+                icon: 'info',
+                showCancelButton: true,
+                confirmButtonColor: '#ffc107',
+                cancelButtonColor: '#212529',
+                confirmButtonText: 'Iniciar Sesión',
+                cancelButtonText: 'Crear Cuenta',
+                reverseButtons: true
+            });
+
+            if (result.isConfirmed) {
+                window.location.href = '/login';
+            } else if (result.dismiss === Swal.DismissReason.cancel) {
+                window.location.href = '/registro';
+            }
         } else {
             window.location.href = '/checkout';
         }
@@ -178,7 +206,12 @@
         } catch(e) {}
         
         if (newQty > stockDisponible) {
-            alert(`Lo sentimos, solo quedan ${stockDisponible} unidades de este producto.`);
+            Swal.fire({
+                title: 'Stock insuficiente',
+                text: `Lo sentimos, solo quedan ${stockDisponible} unidades de este producto.`,
+                icon: 'warning',
+                confirmButtonColor: '#ffc107'
+            });
             return;
         }
 
@@ -188,12 +221,32 @@
         renderFullCart();
     }
 
-    function removeFromCartPage(index) {
-        if(confirm('¿Deseas quitar este producto del carrito?')) {
+    async function removeFromCartPage(index) {
+        const result = await Swal.fire({
+            title: '¿Quitar producto?',
+            text: '¿Deseas eliminar este artículo de tu carrito de compras?',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#212529',
+            confirmButtonText: 'Sí, quitar',
+            cancelButtonText: 'Mantenerlo',
+            reverseButtons: true
+        });
+
+        if(result.isConfirmed) {
             cart.splice(index, 1);
             localStorage.setItem('cart', JSON.stringify(cart));
             updateCartUI();
             renderFullCart();
+            
+            Swal.fire({
+                title: 'Carrito actualizado',
+                text: 'El producto ha sido removido.',
+                icon: 'success',
+                timer: 1500,
+                showConfirmButton: false
+            });
         }
     }
 </script>
