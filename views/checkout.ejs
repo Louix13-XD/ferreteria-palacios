@@ -1,120 +1,191 @@
 <%- include('header') %>
 
-<main class="container mt-4">
-    <!-- Banner de Aviso Demo -->
-    <div class="alert alert-warning border-0 shadow-sm rounded-4 d-flex align-items-center p-4 mb-5" role="alert">
-        <i class="bi bi-exclamation-triangle-fill fs-2 me-4 text-dark"></i>
-        <div>
-            <h5 class="fw-bold mb-1">ENTORNO DE PRUEBAS ACADÉMICAS</h5>
-            <p class="mb-0 small">Esta página es una simulación de pago seguro. <strong>No ingreses datos reales de tu tarjeta.</strong> El sistema validará el formato de los datos pero no realizará ningún cargo económico.</p>
+<main class="container mt-4 pb-5">
+    <!-- Indicador de Pasos -->
+    <div class="row justify-content-center mb-5">
+        <div class="col-md-8">
+            <div class="d-flex justify-content-between position-relative">
+                <div class="step-line"></div>
+                <div class="step-item active" id="step-1-indicator">
+                    <div class="step-num">1</div>
+                    <div class="step-label">Entrega</div>
+                </div>
+                <div class="step-item" id="step-2-indicator">
+                    <div class="step-num">2</div>
+                    <div class="step-label">Pago</div>
+                </div>
+                <div class="step-item" id="step-3-indicator">
+                    <div class="step-num">3</div>
+                    <div class="step-label">Finalizado</div>
+                </div>
+            </div>
         </div>
     </div>
 
-    <div class="row g-5">
-        <!-- Formulario de Pago y Envío -->
-        <div class="col-lg-7">
-            <div class="card border-0 shadow-sm rounded-4 p-4 mb-4">
-                <h4 class="fw-bold mb-4">1. Información de Envío</h4>
-                <form id="paymentForm">
-                    <div class="row g-3 mb-4">
-                        <div class="col-md-6">
-                            <label class="form-label small fw-bold">Nombre</label>
-                            <input type="text" id="cust-name" class="form-control" value="Juan" required>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label small fw-bold">Apellidos</label>
-                            <input type="text" id="cust-lastname" class="form-control" value="Pérez" required>
-                        </div>
-                        <div class="col-12">
-                            <label class="form-label small fw-bold">Dirección de Entrega</label>
-                            <input type="text" class="form-control" placeholder="Av. Ejemplo 123, Lima" required>
-                        </div>
-                    </div>
+    <!-- Banner de Aviso Demo -->
+    <div class="alert alert-warning border-0 shadow-sm rounded-4 d-flex align-items-center p-3 mb-4" role="alert">
+        <i class="bi bi-shield-lock-fill fs-3 me-3 text-dark"></i>
+        <p class="mb-0 small"><strong>ENTORNO SEGURO:</strong> Esta es una simulación académica. No ingreses datos reales.</p>
+    </div>
 
-                    <h4 class="fw-bold mb-4">2. Método de Pago Seguro</h4>
-                    <div class="bg-light p-4 rounded-4 mb-4 border">
-                        <div class="d-flex justify-content-between align-items-center mb-4">
-                            <span class="fw-bold"><i class="bi bi-credit-card me-2"></i>Tarjeta de Crédito / Débito</span>
-                            <div>
+    <div class="row g-4">
+        <!-- Izquierda: Formulario -->
+        <div class="col-lg-7">
+            <form id="checkoutForm">
+                <!-- PASO 1: ENTREGA -->
+                <div id="section-step-1">
+                    <div class="card border-0 shadow-sm rounded-4 p-4 mb-4">
+                        <h4 class="fw-bold mb-4">¿Cómo quieres recibir tu pedido?</h4>
+                        
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <div class="delivery-option p-3 border rounded-4 text-center cursor-pointer active" id="opt-delivery">
+                                    <i class="bi bi-truck fs-2 d-block mb-2"></i>
+                                    <span class="fw-bold">Envío a Domicilio</span>
+                                    <small class="d-block text-muted mt-1" id="shipping-msg">S/ 15.00 estándar</small>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="delivery-option p-3 border rounded-4 text-center cursor-pointer" id="opt-pickup">
+                                    <i class="bi bi-shop fs-2 d-block mb-2"></i>
+                                    <span class="fw-bold">Recojo en Tienda</span>
+                                    <small class="d-block text-success mt-1">¡Gratis!</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="address-fields">
+                            <h5 class="fw-bold mb-3 small text-uppercase">Datos del Destinatario</h5>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label small fw-bold">Nombre</label>
+                                    <input type="text" id="cust-name" class="form-control" placeholder="Ej: Juan" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label small fw-bold">Apellidos</label>
+                                    <input type="text" id="cust-lastname" class="form-control" placeholder="Ej: Pérez" required>
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label small fw-bold">Dirección Completa</label>
+                                    <input type="text" id="cust-address" class="form-control" placeholder="Calle, Número, Distrito" required>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="pickup-info" class="d-none">
+                            <div class="alert bg-light border-0 rounded-4 p-3">
+                                <p class="mb-1 fw-bold"><i class="bi bi-geo-alt-fill me-2 text-warning"></i>Punto de Recojo:</p>
+                                <p class="mb-0 small">Ferretería Palacios - Av. Principal 456, Centro Histórico.</p>
+                                <p class="mt-2 mb-0 extra-small text-muted">Horario: Lun-Sab 8:00 AM - 7:00 PM</p>
+                            </div>
+                        </div>
+
+                        <button type="button" class="btn btn-warning w-100 fw-bold py-3 mt-4 rounded-3" onclick="goToStep(2)">CONTINUAR AL PAGO</button>
+                    </div>
+                </div>
+
+                <!-- PASO 2: PAGO -->
+                <div id="section-step-2" class="d-none">
+                    <div class="card border-0 shadow-sm rounded-4 p-4 mb-4">
+                        <div class="d-flex align-items-center mb-4">
+                            <button type="button" class="btn btn-light btn-sm me-3" onclick="goToStep(1)"><i class="bi bi-arrow-left"></i></button>
+                            <h4 class="fw-bold mb-0">Información de Pago</h4>
+                        </div>
+
+                        <div class="bg-light p-4 rounded-4 mb-4 border">
+                            <div class="d-flex justify-content-between align-items-center mb-4">
+                                <span class="fw-bold"><i class="bi bi-credit-card me-2"></i>Tarjeta Bancaria</span>
                                 <i class="bi bi-credit-card-2-front fs-3 opacity-50"></i>
                             </div>
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label class="form-label small fw-bold">Número de Tarjeta</label>
-                            <input type="text" id="cardNum" class="form-control fs-5 py-2" placeholder="0000 0000 0000 0000" maxlength="19" required>
-                            <div id="cardError" class="text-danger small mt-1 d-none">Número de tarjeta inválido (16 dígitos)</div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label small fw-bold">Número de Tarjeta</label>
+                                <input type="text" id="cardNum" class="form-control fs-5 py-2" placeholder="0000 0000 0000 0000" maxlength="19" required>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label small fw-bold">Vencimiento</label>
+                                    <input type="text" id="cardExp" class="form-control" placeholder="MM/YY" maxlength="5" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label small fw-bold">CVV</label>
+                                    <input type="password" id="cardCvv" class="form-control" placeholder="***" maxlength="3" required>
+                                </div>
+                            </div>
                         </div>
 
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label small fw-bold">Fecha de Expiración</label>
-                                <input type="text" id="cardExp" class="form-control" placeholder="MM/YY" maxlength="5" required>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label small fw-bold">CVV</label>
-                                <input type="password" id="cardCvv" class="form-control" placeholder="123" maxlength="3" required>
-                            </div>
-                        </div>
+                        <button type="submit" class="btn btn-dark w-100 fw-bold py-3 shadow-lg" id="btnPay">
+                            <span id="btnText">FINALIZAR COMPRA</span>
+                            <div id="btnLoading" class="spinner-border spinner-border-sm d-none" role="status"></div>
+                        </button>
                     </div>
-
-                    <button type="submit" class="btn btn-dark w-100 fw-bold py-3 shadow-lg" id="btnPay">
-                        <span id="btnText">PAGAR AHORA S/ <span id="checkout-total">0.00</span></span>
-                        <div id="btnLoading" class="spinner-border spinner-border-sm d-none" role="status"></div>
-                    </button>
-                </form>
-            </div>
+                </div>
+            </form>
         </div>
 
-        <!-- Resumen a la derecha -->
+        <!-- Derecha: Resumen -->
         <div class="col-lg-5">
-            <div class="card border-0 shadow-sm rounded-4 p-4 sticky-top" style="top: 100px;">
-                <h5 class="fw-bold mb-4 text-uppercase small text-muted">Tu Pedido</h5>
+            <div class="card border-0 shadow-sm rounded-4 p-4 sticky-top" style="top: 20px;">
+                <h5 class="fw-bold mb-4 text-uppercase small text-muted">Resumen de Compra</h5>
                 <div id="checkout-items" class="mb-4">
-                    <!-- Productos cargados por JS -->
+                    <!-- JS -->
                 </div>
                 <hr>
-                <div class="d-flex justify-content-between mb-3">
-                    <span class="fw-bold fs-5">Total a Pagar:</span>
-                    <span class="fw-bold fs-4 text-warning" id="final-total">S/ 0.00</span>
+                <div class="d-flex justify-content-between mb-2">
+                    <span class="text-muted">Subtotal:</span>
+                    <span class="fw-bold" id="subtotal-val">S/ 0.00</span>
                 </div>
-                <p class="text-muted small">Al pagar, aceptas que esta es una simulación académica sin efectos legales.</p>
+                <div class="d-flex justify-content-between mb-3" id="shipping-row">
+                    <span class="text-muted">Envío:</span>
+                    <span class="fw-bold text-success" id="shipping-val">S/ 0.00</span>
+                </div>
+                <div class="d-flex justify-content-between p-3 bg-warning bg-opacity-10 rounded-3">
+                    <span class="fw-bold fs-5">TOTAL:</span>
+                    <span class="fw-bold fs-4 text-dark" id="final-total">S/ 0.00</span>
+                </div>
             </div>
         </div>
     </div>
 </main>
 
-<!-- Modal de Procesando -->
+<style>
+    .step-num { width: 35px; height: 35px; background: #e9ecef; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; margin: 0 auto 8px; z-index: 2; position: relative; }
+    .step-item.active .step-num { background: #ffc107; color: #000; }
+    .step-label { font-size: 12px; font-weight: bold; color: #6c757d; text-transform: uppercase; text-align: center; }
+    .step-item.active .step-label { color: #000; }
+    .step-line { position: absolute; top: 17px; left: 10%; right: 10%; height: 2px; background: #e9ecef; z-index: 1; }
+    .delivery-option { cursor: pointer; transition: 0.3s; border-width: 2px !important; }
+    .delivery-option:hover { border-color: #ffc107; background: #fffdf5; }
+    .delivery-option.active { border-color: #ffc107; background: #fffdf5; }
+    .cursor-pointer { cursor: pointer; }
+    .extra-small { font-size: 10px; }
+</style>
+
+<!-- Modal Procesando -->
 <div class="modal fade" id="processingModal" data-bs-backdrop="static" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content border-0 shadow-lg p-5 text-center rounded-4">
             <div class="spinner-border text-warning mb-4" style="width: 3rem; height: 3rem;" role="status"></div>
-            <h4 class="fw-bold">Procesando pago seguro...</h4>
-            <p class="text-muted mb-0">Estamos verificando los datos con tu entidad financiera. No cierres esta ventana.</p>
+            <h4 class="fw-bold">Validando Transacción...</h4>
+            <p class="text-muted mb-0">Estamos procesando tu pago de forma segura.</p>
         </div>
     </div>
 </div>
 
 <script>
     document.addEventListener('DOMContentLoaded', () => {
-        // --- COMENTAR ESTA LÍNEA DESPUÉS DE USARLA SI DESEAS PERSISTENCIA ---
-        // localStorage.clear(); // Limpia todo para empezar a 0 como pediste
-
         const cart = JSON.parse(localStorage.getItem('cart')) || [];
+        if (cart.length === 0) { window.location.href = '/'; return; }
+
+        let subtotal = 0;
+        let shipping = 15;
+        let typeEntrega = 'delivery';
+
         const itemsContainer = document.getElementById('checkout-items');
-        const totalSpan = document.getElementById('checkout-total');
-        const finalTotal = document.getElementById('final-total');
-
-        if (cart.length === 0) {
-            window.location.href = '/';
-            return;
-        }
-
-        let total = 0;
-        itemsContainer.innerHTML = ''; // Limpiar
         cart.forEach(item => {
             const itemTotal = item.price * item.quantity;
-            total += itemTotal;
+            subtotal += itemTotal;
             itemsContainer.innerHTML += `
                 <div class="d-flex justify-content-between mb-2 small">
                     <span class="text-muted">${item.name} (x${item.quantity})</span>
@@ -123,80 +194,113 @@
             `;
         });
 
-        totalSpan.innerText = total.toFixed(2);
-        finalTotal.innerText = `S/ ${total.toFixed(2)}`;
+        // Lógica de Envío Gratis
+        if (subtotal >= 200) {
+            shipping = 0;
+            document.getElementById('shipping-msg').innerHTML = '<span class="text-success fw-bold">¡ENVÍO GRATIS!</span>';
+        }
 
-        // Máscara para el número de tarjeta (espacios cada 4 dígitos)
-        document.getElementById('cardNum').addEventListener('input', function (e) {
-            e.target.value = e.target.value.replace(/[^\d]/g, '').replace(/(.{4})/g, '$1 ').trim();
+        function updateTotals() {
+            document.getElementById('subtotal-val').innerText = `S/ ${subtotal.toFixed(2)}`;
+            document.getElementById('shipping-val').innerText = shipping === 0 ? 'GRATIS' : `S/ ${shipping.toFixed(2)}`;
+            document.getElementById('final-total').innerText = `S/ ${(subtotal + shipping).toFixed(2)}`;
+        }
+
+        updateTotals();
+
+        // Manejo de Opciones de Entrega
+        const optDelivery = document.getElementById('opt-delivery');
+        const optPickup = document.getElementById('opt-pickup');
+        const addressFields = document.getElementById('address-fields');
+        const pickupInfo = document.getElementById('pickup-info');
+
+        optDelivery.addEventListener('click', () => {
+            optDelivery.classList.add('active');
+            optPickup.classList.remove('active');
+            addressFields.classList.remove('d-none');
+            pickupInfo.classList.add('d-none');
+            shipping = subtotal >= 200 ? 0 : 15;
+            typeEntrega = 'delivery';
+            updateTotals();
         });
 
-        // Máscara para la fecha (slash después de 2 dígitos)
-        document.getElementById('cardExp').addEventListener('input', function (e) {
+        optPickup.addEventListener('click', () => {
+            optPickup.classList.add('active');
+            optDelivery.classList.remove('active');
+            addressFields.classList.add('d-none');
+            pickupInfo.classList.remove('d-none');
+            shipping = 0;
+            typeEntrega = 'recojo';
+            updateTotals();
+        });
+
+        // Navegación entre pasos
+        window.goToStep = (n) => {
+            if (n === 2) {
+                // Validar campos si es delivery
+                if (typeEntrega === 'delivery') {
+                    if (!document.getElementById('cust-name').value || !document.getElementById('cust-address').value) {
+                        alert("Por favor completa los datos de entrega.");
+                        return;
+                    }
+                }
+                document.getElementById('section-step-1').classList.add('d-none');
+                document.getElementById('section-step-2').classList.remove('d-none');
+                document.getElementById('step-2-indicator').classList.add('active');
+            } else {
+                document.getElementById('section-step-1').classList.remove('d-none');
+                document.getElementById('section-step-2').classList.add('d-none');
+                document.getElementById('step-2-indicator').classList.remove('active');
+            }
+            window.scrollTo(0, 0);
+        };
+
+        // Máscaras de tarjeta
+        document.getElementById('cardNum').addEventListener('input', e => {
+            e.target.value = e.target.value.replace(/[^\d]/g, '').replace(/(.{4})/g, '$1 ').trim();
+        });
+        document.getElementById('cardExp').addEventListener('input', e => {
             e.target.value = e.target.value.replace(/[^\d]/g, '').replace(/(.{2})/, '$1/').trim();
         });
 
-        // Validación y Envío
-        document.getElementById('paymentForm').addEventListener('submit', function (e) {
+        // Envío final
+        document.getElementById('checkoutForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            
-            const cardNum = document.getElementById('cardNum').value.replace(/\s/g, '');
-            const cardExp = document.getElementById('cardExp').value;
-            const cardCvv = document.getElementById('cardCvv').value;
-
-            // Validación simple
-            if (cardNum.length !== 16) {
-                document.getElementById('cardError').classList.remove('d-none');
-                return;
-            } else {
-                document.getElementById('cardError').classList.add('d-none');
-            }
-
-            // Simulación de procesamiento
             const modal = new bootstrap.Modal(document.getElementById('processingModal'));
             modal.show();
 
-            const orderId = Math.floor(Math.random() * 9000 + 1000);
+            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            let c_id = currentUser ? currentUser.id : 1;
 
-            setTimeout(async () => {
-                const cart = JSON.parse(localStorage.getItem('cart')) || [];
-                const currentUser = JSON.parse(localStorage.getItem('currentUser'));
-                let c_id = 1; // Cliente genérico por defecto en DB
-                if (currentUser && currentUser.id && typeof currentUser.id === 'number') { c_id = currentUser.id; }
+            const payload = {
+                cliente_id: c_id,
+                total_venta: subtotal + shipping,
+                metodo_pago: 'Tarjeta',
+                tipo_entrega: typeEntrega,
+                costo_envio: shipping,
+                direccion_envio: typeEntrega === 'delivery' ? document.getElementById('cust-address').value : 'Recojo en Tienda',
+                detalles: cart.map(item => ({
+                    id: item.id,
+                    cantidad: item.quantity,
+                    precio: item.price,
+                    nombre: item.name
+                }))
+            };
 
-                const payload = {
-                    cliente_id: c_id,
-                    total_venta: parseFloat(document.getElementById('final-total').innerText.replace('S/ ', '')),
-                    metodo_pago: 'Tarjeta',
-                    direccion_envio: document.querySelector('input[placeholder="Av. Ejemplo 123, Lima"]').value || 'Tienda',
-                    detalles: cart.map(item => ({
-                        id: item.id,
-                        cantidad: item.quantity,
-                        precio: item.price
-                    }))
-                };
-
-                try {
-                    const res = await fetch('/api/ventas', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(payload)
-                    });
-                    const data = await res.json();
-                    
-                    if (data.success) {
-                        modal.hide();
-                        localStorage.removeItem('cart');
+            try {
+                const res = await fetch('/api/ventas', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+                if (data.success) {
+                    localStorage.removeItem('cart');
+                    setTimeout(() => {
                         window.location.href = '/boleta/' + data.codigo_boleta.replace('ORD-', '');
-                    } else {
-                        alert('Error al registrar la venta en la nube');
-                        modal.hide();
-                    }
-                } catch (error) {
-                    alert('Error de conexión');
-                    modal.hide();
-                }
-            }, 3000);
+                    }, 2000);
+                } else { alert('Error al procesar'); modal.hide(); }
+            } catch (err) { alert('Error de red'); modal.hide(); }
         });
     });
 </script>
