@@ -73,7 +73,7 @@
                         try {
                             const date = sale.fecha_compra ? new Date(sale.fecha_compra).toLocaleString() : 'F. Desconocida';
                             const estadoLogistico = sale.estado_logistico || 'En espera';
-                            const badgeClass = estadoLogistico === 'Entregado' ? 'bg-success' : 'bg-warning text-dark';
+                            const badgeClass = estadoLogistico === 'Entregado' ? 'bg-success text-white' : 'bg-warning text-dark';
                             const codigoRaw = sale.codigo_boleta || 'ORD-000';
                             const codigoLimpio = codigoRaw.replace('ORD-', '');
                             const total = sale.total_venta ? parseFloat(sale.total_venta).toFixed(2) : '0.00';
@@ -84,7 +84,7 @@
                                     <td>${date}</td>
                                     <td>${sale.cliente_nombre || 'Cliente'}</td>
                                     <td class="fw-bold text-dark">S/ ${total}</td>
-                                    <td><span class="badge ${badgeClass} bg-opacity-10 px-3">${estadoLogistico}</span></td>
+                                    <td><span class="badge ${badgeClass} shadow-sm px-3 py-2 fw-bold" style="font-size: 0.7rem; letter-spacing: 0.5px;">${estadoLogistico.toUpperCase()}</span></td>
                                     <td class="text-end pe-4">
                                         <a href="/boleta/${codigoLimpio}" class="btn btn-sm btn-outline-dark me-1"><i class="bi bi-file-earmark-text"></i></a>
                                         <button class="btn btn-sm btn-outline-danger" onclick="deleteSale(${sale.id})"><i class="bi bi-trash"></i></button>
