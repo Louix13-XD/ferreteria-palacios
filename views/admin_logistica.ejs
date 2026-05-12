@@ -23,19 +23,10 @@
     <%- include('admin_sidebar') %>
 
     <main class="admin-content">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <div>
-                <h1 class="h3 mb-0 fw-bold">Gestión de Logística y Despacho</h1>
-                <p class="text-muted small">Controla y confirma las entregas de pedidos a domicilio y recojo en tienda.</p>
-            </div>
-            <div id="debug-status" class="badge bg-danger">Esperando datos...</div>
-        </div>
-
-        <!-- Panel de diagnóstico temporal -->
-        <div id="diag-panel" class="alert alert-info d-none">
-            <h6>Datos recibidos del servidor:</h6>
-            <pre id="raw-data" style="max-height: 100px; overflow: auto; font-size: 10px;"></pre>
-        </div>
+        <header class="mb-4">
+            <h2 class="fw-bold">Gestión de Logística y Despacho</h2>
+            <p class="text-muted">Controla y confirma las entregas de pedidos a domicilio y recojo en tienda.</p>
+        </header>
 
         <div class="row g-4 mb-5">
             <!-- Delivery -->
@@ -101,31 +92,16 @@
             let sales = [];
 
             async function loadSales() {
-                const status = document.getElementById('debug-status');
-                const diag = document.getElementById('diag-panel');
-                const raw = document.getElementById('raw-data');
-                
                 try {
-                    status.innerText = "Cargando...";
                     const res = await fetch('/api/ventas');
                     const data = await res.json();
                     
                     if(data.success) {
                         sales = data.ventas;
-                        status.innerText = "Datos cargados: " + sales.length;
-                        status.className = "badge bg-success";
-                        
-                        // Mostrar datos para diagnóstico
-                        diag.classList.remove('d-none');
-                        raw.innerText = JSON.stringify(sales, null, 2);
-                        
                         renderLists();
-                    } else {
-                        status.innerText = "Error API";
                     }
                 } catch(e) { 
-                    console.error(e); 
-                    status.innerText = "Error Conexión";
+                    console.error("Error al cargar ventas:", e); 
                 }
             }
 
