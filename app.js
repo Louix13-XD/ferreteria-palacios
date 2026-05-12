@@ -341,8 +341,8 @@ app.get('/api/ventas', async (req, res) => {
         const result = await db.query(`
             SELECT v.*, u.nombre_completo as cliente_nombre 
             FROM ventas v 
-            JOIN usuarios u ON v.cliente_id = u.id 
-            ORDER BY v.id DESC
+            LEFT JOIN usuarios u ON v.cliente_id = u.id 
+            ORDER BY v.fecha_compra DESC
         `);
         res.json({ success: true, ventas: result.rows });
     } catch (error) {
@@ -356,7 +356,7 @@ app.get('/api/ventas/detalle/:codigo', async (req, res) => {
         const result = await db.query(`
             SELECT v.*, u.nombre_completo as cliente_nombre 
             FROM ventas v 
-            JOIN usuarios u ON v.cliente_id = u.id 
+            LEFT JOIN usuarios u ON v.cliente_id = u.id 
             WHERE v.codigo_boleta = $1
         `, [req.params.codigo]);
         
@@ -367,14 +367,17 @@ app.get('/api/ventas/detalle/:codigo', async (req, res) => {
         const venta = result.rows[0];
         
         const detallesResult = await db.query(`
-            SELECT dv.*, COALESCE(dv.nombre_producto, p.nombre) as producto_nombre 
+            SELECT dv.*, COALESCE(dv.nombre_producto, p.nombre) as nombre_producto 
             FROM detalle_ventas dv 
             LEFT JOIN productos p ON dv.producto_id = p.id 
             WHERE dv.venta_id = $1
         `, [venta.id]);
         
-        venta.items = detallesResult.rows;
-        res.json({ success: true, venta });
+        res.json({ 
+            success: true, 
+            venta: venta, 
+            productos: detallesResult.rows 
+        });
     } catch (error) {
         console.error(error);
         res.status(500).json({ success: false });
