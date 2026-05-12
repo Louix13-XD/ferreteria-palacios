@@ -33,7 +33,7 @@
             <div class="row align-items-center">
                 <div class="col-md-5">
                     <h5 class="fw-bold mb-1 text-warning"><i class="bi bi-search me-2"></i>Buscador de Boleta</h5>
-                    <p class="mb-0 small opacity-75">Escribe el código para confirmar que el cliente ya tiene su producto.</p>
+                    <p class="mb-0 small opacity-75">Escribe el código para revisar los detalles y productos de la boleta.</p>
                 </div>
                 <div class="col-md-7">
                     <div class="input-group input-group-lg shadow-sm">
@@ -138,14 +138,17 @@
                         resultDiv.innerHTML = `
                             <div class="alert bg-white text-dark d-flex justify-content-between align-items-center shadow rounded-3 border-0">
                                 <div>
-                                    <span class="badge bg-dark mb-2">RESULTADO ENCONTRADO</span>
-                                    <h6 class="fw-bold mb-0">Boleta #${match.codigo_boleta.replace('ORD-', '')} - ${match.cliente_nombre || 'Cliente'}</h6>
-                                    <small class="text-muted">Total: S/ ${parseFloat(match.total_venta).toFixed(2)} | Estado: ${status}</small>
+                                    <span class="badge bg-dark mb-2">PEDIDO ENCONTRADO</span>
+                                    <h6 class="fw-bold mb-1">Boleta #${match.codigo_boleta.replace('ORD-', '')} - ${match.cliente_nombre || 'Cliente'}</h6>
+                                    <div class="d-flex gap-2 align-items-center">
+                                        <span class="badge ${badgeClass} text-uppercase">${status}</span>
+                                        <small class="text-muted">| Total: <b>S/ ${parseFloat(match.total_venta).toFixed(2)}</b></small>
+                                    </div>
                                 </div>
-                                <div>
-                                    ${status === 'En espera' 
-                                        ? `<button class="btn btn-success fw-bold px-4" onclick="fastConfirm('${match.codigo_boleta}')">CONFIRMAR ENTREGA</button>`
-                                        : `<span class="badge bg-success px-4 py-2">YA ENTREGADO</span>`}
+                                <div class="d-flex gap-2">
+                                    <a href="/boleta/${match.codigo_boleta.replace('ORD-', '')}" target="_blank" class="btn btn-warning fw-bold px-4">
+                                        <i class="bi bi-file-earmark-text me-2"></i>VER BOLETA
+                                    </a>
                                 </div>
                             </div>
                         `;
