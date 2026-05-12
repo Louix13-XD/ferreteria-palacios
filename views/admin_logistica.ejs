@@ -106,8 +106,9 @@
 
             function renderLists() {
                 const pending = sales.filter(s => s.estado_logistico === 'En espera');
-                const deliveryList = pending.filter(s => s.tipo_entrega === 'delivery');
-                const recojoList = pending.filter(s => s.tipo_entrega === 'recojo');
+                // Hacer el filtro insensible a mayúsculas para evitar errores
+                const deliveryList = pending.filter(s => s.tipo_entrega && s.tipo_entrega.toLowerCase() === 'delivery');
+                const recojoList = pending.filter(s => s.tipo_entrega && s.tipo_entrega.toLowerCase() === 'recojo');
 
                 document.getElementById('count-delivery').innerText = deliveryList.length;
                 document.getElementById('count-recojo').innerText = recojoList.length;
