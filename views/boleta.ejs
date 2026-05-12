@@ -54,8 +54,8 @@
             <div class="col-6">
                 <h6 class="fw-bold text-muted text-uppercase small mb-2">Cliente:</h6>
                 <p class="mb-0 fw-bold" id="client-name">---</p>
-                <p class="mb-0 small">D.N.I.: 45892314</p>
-                <p class="mb-0 small text-muted">Dirección: Lima, Perú</p>
+                <p class="mb-0 small" id="client-dni"></p>
+                <p class="mb-0 small text-muted" id="client-address"></p>
             </div>
             <div class="col-6 text-end">
                 <h6 class="fw-bold text-muted text-uppercase small mb-2">Pago:</h6>
@@ -125,6 +125,12 @@
                 const dateObj = new Date(sale.fecha_compra);
                 document.getElementById('invoice-date').innerText = 'Fecha: ' + dateObj.toLocaleDateString();
                 document.getElementById('client-name').innerText = sale.cliente_nombre || 'Cliente';
+                
+                if(sale.direccion_envio) {
+                    document.getElementById('client-address').innerText = 'Dirección: ' + sale.direccion_envio;
+                }
+                // Si el sistema tuviera el DNI en la tabla ventas, se pondría aquí:
+                // document.getElementById('client-dni').innerText = sale.dni ? 'D.N.I.: ' + sale.dni : '';
 
                 // Llenar items
                 const itemsContainer = document.getElementById('invoice-items');
