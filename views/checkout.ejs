@@ -54,16 +54,23 @@
                             </div>
                         </div>
 
-                        <div id="address-fields">
-                            <h5 class="fw-bold mb-3 small text-uppercase">Datos del Destinatario</h5>
+                        <!-- Datos del Cliente (Siempre visible) -->
+                        <div class="mb-4">
+                            <h5 class="fw-bold mb-3 small text-uppercase text-muted">Datos del Destinatario</h5>
                             <div class="row g-3">
                                 <div class="col-md-12">
-                                    <label class="form-label small fw-bold">Nombre Completo</label>
-                                    <input type="text" id="cust-name" class="form-control" placeholder="Ej: Juan Pérez" value="<%= user ? user.name : '' %>" required>
+                                    <label class="form-label small fw-bold">Nombres y Apellidos</label>
+                                    <input type="text" id="cust-name" class="form-control" placeholder="Ej: Juan Pérez" value="<%= user ? user.name : '' %>">
                                 </div>
+                            </div>
+                        </div>
+
+                        <!-- Dirección (Solo para Delivery) -->
+                        <div id="address-fields">
+                            <div class="row g-3">
                                 <div class="col-12">
-                                    <label class="form-label small fw-bold">Dirección Completa</label>
-                                    <input type="text" id="cust-address" class="form-control" placeholder="Calle, Número, Distrito" value="<%= user ? user.direccion : '' %>" required>
+                                    <label class="form-label small fw-bold">Dirección de Envío</label>
+                                    <input type="text" id="cust-address" class="form-control" placeholder="Calle, Número, Distrito" value="<%= user ? user.direccion : '' %>">
                                 </div>
                             </div>
                         </div>
