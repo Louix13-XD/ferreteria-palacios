@@ -54,22 +54,20 @@
                             </div>
                         </div>
 
-                        <!-- Datos del Cliente (Siempre visible) -->
+                        <!-- Datos del Cliente (Obligatorios para todos) -->
                         <div class="mb-4">
                             <h5 class="fw-bold mb-3 small text-uppercase text-muted">Datos del Destinatario</h5>
                             <div class="row g-3">
-                                <div class="col-md-12">
+                                <div class="col-md-8">
                                     <label class="form-label small fw-bold">Nombres y Apellidos</label>
                                     <input type="text" id="cust-name" class="form-control" placeholder="Ej: Juan Pérez" value="<%= user ? user.name : '' %>">
                                 </div>
-                            </div>
-                        </div>
-
-                        <!-- Dirección (Solo para Delivery) -->
-                        <div id="address-fields">
-                            <div class="row g-3">
+                                <div class="col-md-4">
+                                    <label class="form-label small fw-bold">D.N.I. / R.U.C.</label>
+                                    <input type="text" id="cust-dni" class="form-control" placeholder="8 o 11 dígitos" value="<%= user ? user.dni : '' %>" maxlength="11">
+                                </div>
                                 <div class="col-12">
-                                    <label class="form-label small fw-bold">Dirección de Envío</label>
+                                    <label class="form-label small fw-bold">Dirección Completa</label>
                                     <input type="text" id="cust-address" class="form-control" placeholder="Calle, Número, Distrito" value="<%= user ? user.direccion : '' %>">
                                 </div>
                             </div>
@@ -272,18 +270,14 @@
             console.log("Iniciando envío de orden manual...");
             
             try {
-                // Validar campos manualmente según el tipo de entrega
+                // Validar campos manualmente (Obligatorios para todos)
                 const name = document.getElementById('cust-name').value;
+                const dni = document.getElementById('cust-dni').value;
                 const addr = document.getElementById('cust-address').value;
                 const card = document.getElementById('cardNum').value;
 
-                if (!name || !card) {
-                    alert("Por favor, completa tu nombre y los datos de la tarjeta.");
-                    return;
-                }
-
-                if (typeEntrega === 'delivery' && !addr) {
-                    alert("Por favor, ingresa una dirección para el envío a domicilio.");
+                if (!name || !dni || !addr || !card) {
+                    alert("Por favor, completa todos los campos: Nombre, DNI, Dirección y Datos de Tarjeta.");
                     return;
                 }
 
@@ -300,11 +294,12 @@
 
                 const payload = {
                     cliente_id: c_id,
+                    dni_cliente: dni, // Enviamos el DNI
                     total_venta: finalTotal,
                     metodo_pago: 'Tarjeta',
                     tipo_entrega: typeEntrega,
                     costo_envio: shipping,
-                    direccion_envio: typeEntrega === 'delivery' ? addr : 'Recojo en Tienda',
+                    direccion_envio: addr,
                     detalles: cart.map(item => ({
                         id: item.id,
                         cantidad: parseInt(item.quantity),

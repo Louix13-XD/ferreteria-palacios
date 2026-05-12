@@ -304,15 +304,15 @@ app.delete('/api/productos/:id', async (req, res) => {
 app.post('/api/ventas', async (req, res) => {
     const client = await db.connect();
     try {
-        const { cliente_id, total_venta, metodo_pago, direccion_envio, detalles, tipo_entrega, costo_envio } = req.body;
+        const { cliente_id, total_venta, metodo_pago, direccion_envio, detalles, tipo_entrega, costo_envio, dni_cliente } = req.body;
         const codigo_boleta = 'ORD-' + Math.floor(Math.random() * 9000 + 1000); 
         
         await client.query('BEGIN');
         
         const resultVenta = await client.query(
-            `INSERT INTO ventas (codigo_boleta, cliente_id, total_venta, metodo_pago, direccion_envio, estado_pedido, tipo_entrega, costo_envio, estado_logistico)
-             VALUES ($1, $2, $3, $4, $5, 'Procesando', $6, $7, 'En espera') RETURNING id`,
-            [codigo_boleta, cliente_id, total_venta, metodo_pago, direccion_envio, tipo_entrega || 'delivery', costo_envio || 0]
+            `INSERT INTO ventas (codigo_boleta, cliente_id, total_venta, metodo_pago, direccion_envio, estado_pedido, tipo_entrega, costo_envio, estado_logistico, dni_cliente)
+             VALUES ($1, $2, $3, $4, $5, 'Procesando', $6, $7, 'En espera', $8) RETURNING id`,
+            [codigo_boleta, cliente_id, total_venta, metodo_pago, direccion_envio, tipo_entrega || 'delivery', costo_envio || 0, dni_cliente]
         );
         const venta_id = resultVenta.rows[0].id;
 
