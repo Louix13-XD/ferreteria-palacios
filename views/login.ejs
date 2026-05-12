@@ -34,7 +34,10 @@
                                 <label class="form-label fw-semibold">Contraseña</label>
                                 <div class="input-group">
                                     <span class="input-group-text bg-transparent border-end-0"><i class="bi bi-lock"></i></span>
-                                    <input type="password" class="form-control border-start-0" id="login-pass" placeholder="Ingresa tu contraseña" required>
+                                    <input type="password" class="form-control border-start-0 border-end-0" id="login-pass" placeholder="Ingresa tu contraseña" required>
+                                    <button class="btn btn-outline-secondary border-start-0 bg-transparent opacity-50" type="button" onclick="togglePassword('login-pass', this)">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
                                 </div>
                                 <div class="text-end mt-2">
                                     <a href="#" class="text-warning text-decoration-none small fw-bold">¿Olvidaste tu contraseña?</a>
@@ -61,7 +64,7 @@
                             </div>
                             <div class="mb-3">
                                 <label class="form-label fw-semibold">Número Celular</label>
-                                <input type="tel" class="form-control" id="reg-phone" placeholder="Ingresa tu número de celular" required>
+                                <input type="tel" class="form-control" id="reg-phone" placeholder="987654321" required maxlength="9" pattern="[0-9]{9}" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
                             </div>
                             <div class="mb-3">
                                 <label class="form-label fw-semibold">Dirección</label>
@@ -69,7 +72,12 @@
                             </div>
                             <div class="mb-3">
                                 <label class="form-label fw-semibold">Contraseña</label>
-                                <input type="password" class="form-control" id="reg-pass" placeholder="Ingresa una contraseña" required>
+                                <div class="input-group">
+                                    <input type="password" class="form-control border-end-0" id="reg-pass" placeholder="Ingresa una contraseña" required>
+                                    <button class="btn btn-outline-secondary border-start-0 bg-transparent opacity-50" type="button" onclick="togglePassword('reg-pass', this)">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
+                                </div>
                             </div>
                             <div class="mb-3 form-check text-start">
                                 <input type="checkbox" class="form-check-input" id="termsCheck" required>
@@ -90,6 +98,20 @@
 </main>
 
 <script>
+    function togglePassword(inputId, btn) {
+        const input = document.getElementById(inputId);
+        const icon = btn.querySelector('i');
+        if (input.type === 'password') {
+            input.type = 'text';
+            icon.classList.remove('bi-eye');
+            icon.classList.add('bi-eye-slash');
+        } else {
+            input.type = 'password';
+            icon.classList.remove('bi-eye-slash');
+            icon.classList.add('bi-eye');
+        }
+    }
+
     document.addEventListener('DOMContentLoaded', () => {
         // Manejo de Registro con Backend
         const formRegister = document.getElementById('formRegister');
@@ -116,15 +138,31 @@
                 const data = await res.json();
                 
                 if(data.success) {
-                    alert("¡Cuenta creada con éxito! Ahora puedes iniciar sesión.");
-                    location.reload();
+                    Swal.fire({
+                        icon: 'success',
+                        title: '¡Cuenta creada!',
+                        text: 'Ahora puedes iniciar sesión con tus credenciales.',
+                        confirmButtonColor: '#ffc107'
+                    }).then(() => {
+                        location.reload();
+                    });
                 } else {
-                    alert(data.message);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error al registrar',
+                        text: data.message,
+                        confirmButtonColor: '#ffc107'
+                    });
                     btn.disabled = false;
                     btn.innerText = 'CREAR CUENTA';
                 }
             } catch(error) {
-                alert("Error de conexión al registrar.");
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error de conexión',
+                    text: 'No se pudo contactar con el servidor.',
+                    confirmButtonColor: '#ffc107'
+                });
                 btn.disabled = false;
                 btn.innerText = 'CREAR CUENTA';
             }
@@ -168,12 +206,22 @@
                         window.location.href = wasInCart ? '/carrito' : '/';
                     }
                 } else {
-                    alert(data.message || "Credenciales incorrectas.");
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Acceso denegado',
+                        text: data.message || "Credenciales incorrectas.",
+                        confirmButtonColor: '#ffc107'
+                    });
                     btn.disabled = false;
                     btn.innerText = 'INGRESAR';
                 }
             } catch (error) {
-                alert("Error de conexión al iniciar sesión.");
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error de conexión',
+                    text: 'No se pudo iniciar sesión en este momento.',
+                    confirmButtonColor: '#ffc107'
+                });
                 btn.disabled = false;
                 btn.innerText = 'INGRESAR';
             }
