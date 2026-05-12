@@ -7,6 +7,8 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         body { background-color: #f0f2f5; font-family: 'Inter', sans-serif; }
         .admin-sidebar { width: 250px; height: 100vh; position: fixed; background: #212529; color: white; }
@@ -335,13 +337,34 @@
         });
 
         async function deleteWorker(id) {
-            if(confirm('¿Seguro que deseas eliminar a este usuario?')) {
+            const result = await Swal.fire({
+                title: '¿Eliminar personal?',
+                text: '¿Estás seguro de que deseas eliminar a este usuario del equipo?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                confirmButtonText: 'Sí, eliminar',
+                cancelButtonText: 'Cancelar',
+                reverseButtons: true
+            });
+
+            if (result.isConfirmed) {
                 try {
                     const res = await fetch('/api/usuarios/' + id, { method: 'DELETE' });
-                    if ((await res.json()).success) {
+                    const data = await res.json();
+                    if (data.success) {
+                        Swal.fire({
+                            title: '¡Eliminado!',
+                            text: 'El colaborador ha sido retirado.',
+                            icon: 'success',
+                            timer: 1500,
+                            showConfirmButton: false
+                        });
                         fetchWorkers();
                     }
-                } catch(e) { alert('Error al eliminar'); }
+                } catch(e) { 
+                    Swal.fire('Error', 'No se pudo eliminar al usuario.', 'error');
+                }
             }
         }
     </script>
