@@ -111,10 +111,11 @@
                             </div>
                         </div>
 
-                        <button type="submit" class="btn btn-dark w-100 fw-bold py-3 shadow-lg" id="btnPay">
-                            <span id="btnText">FINALIZAR COMPRA</span>
-                            <div id="btnLoading" class="spinner-border spinner-border-sm d-none" role="status"></div>
-                        </button>
+                        <div class="mt-4">
+                            <button type="submit" class="btn btn-dark w-100 fw-bold py-3 rounded-3 shadow-sm">FINALIZAR COMPRA</button>
+                            <p class="text-center extra-small text-muted mt-3 mb-0">Al finalizar, aceptas nuestros términos y condiciones de venta.</p>
+                        </div>
+                        <div id="btnLoading" class="spinner-border spinner-border-sm d-none" role="status"></div>
                     </div>
                 </div>
             </form>
@@ -265,8 +266,8 @@
             const modal = new bootstrap.Modal(document.getElementById('processingModal'));
             modal.show();
 
-            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
-            let c_id = currentUser ? currentUser.id : 1;
+            // Usar el ID del usuario desde la sesión de EJS
+            const c_id = '<%= user ? user.id : 1 %>';
 
             const payload = {
                 cliente_id: c_id,
