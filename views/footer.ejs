@@ -11,13 +11,20 @@
                 </div>
                 <div class="col-md-2 col-lg-2 col-xl-2 mx-auto mb-4">
                     <h6 class="text-uppercase fw-bold mb-4">Categorías</h6>
-                    <p><a href="/productos/herramientas" class="text-reset text-decoration-none">Herramientas</a></p>
-                    <p><a href="/productos/construccion" class="text-reset text-decoration-none">Construcción</a></p>
-                    <p><a href="/productos/pintura" class="text-reset text-decoration-none">Pintura</a></p>
+                    <select class="form-select bg-dark text-light border-secondary small shadow-none" onchange="if(this.value) window.location.href=this.value">
+                        <option value="">Seleccionar...</option>
+                        <option value="/productos/herramientas">Herramientas</option>
+                        <option value="/productos/construccion">Construcción</option>
+                        <option value="/productos/pintura">Pintura</option>
+                        <option value="/productos/electricidad">Electricidad</option>
+                        <option value="/productos/iluminacion">Iluminación</option>
+                        <option value="/productos/seguridad">Seguridad</option>
+                        <option value="/productos/gasfiteria">Gasfitería</option>
+                    </select>
                 </div>
                 <div class="col-md-4 col-lg-3 col-xl-3 mx-auto mb-md-0 mb-4">
                     <h6 class="text-uppercase fw-bold mb-4">Contacto</h6>
-                    <p><i class="bi bi-geo-alt me-3 text-warning"></i> Calle Principal 123, Tu Ciudad</p>
+                    <p><i class="bi bi-geo-alt me-3 text-warning"></i> Av. Victor Raul Mz. 48 Lt. 01, Nuevo Chao, Virú</p>
                     <p><i class="bi bi-envelope me-3 text-warning"></i> ventas@ferremax.com</p>
                     <p><i class="bi bi-phone me-3 text-warning"></i> +51 987 654 321</p>
                 </div>
@@ -134,7 +141,7 @@
         </div>
 
         <div class="text-center p-4 border-top border-secondary">
-            © 2024 Copyright: <a class="text-reset fw-bold" href="#">Ferretería Palacios</a>
+            © <script>document.write(new Date().getFullYear())</script> Copyright: <a class="text-reset fw-bold" href="#">Ferretería Palacios</a>
         </div>
     </footer>
 
