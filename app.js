@@ -367,7 +367,7 @@ app.get('/api/ventas/detalle/:codigo', async (req, res) => {
         const venta = result.rows[0];
         
         const detallesResult = await db.query(`
-            SELECT dv.*, COALESCE(dv.nombre_producto, p.nombre) as nombre_producto 
+            SELECT dv.*, COALESCE(dv.nombre_producto, p.nombre, 'Producto Sin Nombre') as nombre_producto 
             FROM detalle_ventas dv 
             LEFT JOIN productos p ON dv.producto_id = p.id 
             WHERE dv.venta_id = $1
