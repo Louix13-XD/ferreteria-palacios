@@ -11,16 +11,20 @@
                 </div>
                 <div class="col-md-2 col-lg-2 col-xl-2 mx-auto mb-4">
                     <h6 class="text-uppercase fw-bold mb-4">Categorías</h6>
-                    <select class="form-select bg-dark text-light border-secondary small shadow-none" onchange="if(this.value) window.location.href=this.value">
-                        <option value="">Seleccionar...</option>
-                        <option value="/productos/herramientas">Herramientas</option>
-                        <option value="/productos/construccion">Construcción</option>
-                        <option value="/productos/pintura">Pintura</option>
-                        <option value="/productos/electricidad">Electricidad</option>
-                        <option value="/productos/iluminacion">Iluminación</option>
-                        <option value="/productos/seguridad">Seguridad</option>
-                        <option value="/productos/gasfiteria">Gasfitería</option>
-                    </select>
+                    <div class="dropdown">
+                        <button class="btn btn-outline-warning btn-sm dropdown-toggle w-100 border-0 bg-dark text-start text-light opacity-75" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Ver todas...
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-dark shadow-lg border-secondary">
+                            <li><a class="dropdown-item" href="/productos/herramientas">Herramientas</a></li>
+                            <li><a class="dropdown-item" href="/productos/construccion">Construcción</a></li>
+                            <li><a class="dropdown-item" href="/productos/pintura">Pintura</a></li>
+                            <li><a class="dropdown-item" href="/productos/electricidad">Electricidad</a></li>
+                            <li><a class="dropdown-item" href="/productos/iluminacion">Iluminación</a></li>
+                            <li><a class="dropdown-item" href="/productos/seguridad">Seguridad</a></li>
+                            <li><a class="dropdown-item" href="/productos/gasfiteria">Gasfitería</a></li>
+                        </ul>
+                    </div>
                 </div>
                 <div class="col-md-4 col-lg-3 col-xl-3 mx-auto mb-md-0 mb-4">
                     <h6 class="text-uppercase fw-bold mb-4">Contacto</h6>
