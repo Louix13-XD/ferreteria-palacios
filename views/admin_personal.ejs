@@ -94,7 +94,7 @@
                             </div>
                             <div class="col-md-4 mb-3">
                                 <label class="form-label fw-bold small">Número Celular</label>
-                                <input type="tel" class="form-control" id="work-phone" placeholder="987 654 321" required>
+                                <input type="tel" class="form-control" id="work-phone" placeholder="987654321" required maxlength="9" pattern="[0-9]{9}" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
                             </div>
                         </div>
                         <div class="mb-3">
@@ -110,7 +110,12 @@
                         </div>
                         <div class="mb-4">
                             <label class="form-label fw-bold small">Contraseña</label>
-                            <input type="password" class="form-control" id="work-pass" required>
+                            <div class="input-group">
+                                <input type="password" class="form-control" id="work-pass" required>
+                                <button class="btn btn-outline-secondary" type="button" onclick="togglePassword('work-pass', this)">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                            </div>
                         </div>
                         <button type="submit" class="btn btn-warning w-100 fw-bold py-2 shadow">CREAR USUARIO</button>
                     </form>
@@ -152,7 +157,7 @@
                             </div>
                             <div class="col-md-4 mb-3">
                                 <label class="form-label fw-bold small">Número Celular</label>
-                                <input type="tel" class="form-control" id="edit-work-phone" required>
+                                <input type="tel" class="form-control" id="edit-work-phone" required maxlength="9" pattern="[0-9]{9}" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
                             </div>
                         </div>
                         <div class="mb-3">
@@ -168,7 +173,12 @@
                         </div>
                         <div class="mb-4">
                             <label class="form-label fw-bold small">Contraseña (Dejar en blanco para no cambiar)</label>
-                            <input type="password" class="form-control" id="edit-work-pass">
+                            <div class="input-group">
+                                <input type="password" class="form-control" id="edit-work-pass">
+                                <button class="btn btn-outline-secondary" type="button" onclick="togglePassword('edit-work-pass', this)">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                            </div>
                         </div>
                         <button type="submit" class="btn btn-warning w-100 fw-bold py-2 shadow">GUARDAR CAMBIOS</button>
                     </form>
@@ -178,6 +188,20 @@
     </div>
 
     <script>
+        function togglePassword(inputId, btn) {
+            const input = document.getElementById(inputId);
+            const icon = btn.querySelector('i');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('bi-eye');
+                icon.classList.add('bi-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('bi-eye-slash');
+                icon.classList.add('bi-eye');
+            }
+        }
+
         let allWorkers = [];
 
         document.addEventListener('DOMContentLoaded', () => {

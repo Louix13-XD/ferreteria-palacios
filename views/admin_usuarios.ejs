@@ -79,7 +79,7 @@
                         </div>
                         <div class="mb-3">
                             <label class="form-label fw-bold small">Número Celular</label>
-                            <input type="tel" class="form-control" id="edit-client-phone">
+                            <input type="tel" class="form-control" id="edit-client-phone" maxlength="9" pattern="[0-9]{9}" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
                         </div>
                         <div class="mb-3">
                             <label class="form-label fw-bold small">Estado de Cuenta</label>
@@ -90,7 +90,12 @@
                         </div>
                         <div class="mb-4">
                             <label class="form-label fw-bold small">Nueva Contraseña (Dejar en blanco para no cambiar)</label>
-                            <input type="password" class="form-control" id="edit-client-pass">
+                            <div class="input-group">
+                                <input type="password" class="form-control" id="edit-client-pass">
+                                <button class="btn btn-outline-secondary" type="button" onclick="togglePassword('edit-client-pass', this)">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                            </div>
                         </div>
                         <button type="submit" class="btn btn-warning w-100 fw-bold py-2 shadow">GUARDAR CAMBIOS</button>
                     </form>
@@ -100,6 +105,20 @@
     </div>
 
     <script>
+        function togglePassword(inputId, btn) {
+            const input = document.getElementById(inputId);
+            const icon = btn.querySelector('i');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('bi-eye');
+                icon.classList.add('bi-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('bi-eye-slash');
+                icon.classList.add('bi-eye');
+            }
+        }
+
         let allClients = [];
 
         document.addEventListener('DOMContentLoaded', () => {
