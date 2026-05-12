@@ -105,17 +105,24 @@
             }
 
             function renderLists() {
-                const pending = sales.filter(s => s.estado_logistico === 'En espera');
-                // Hacer el filtro insensible a mayúsculas para evitar errores
-                const deliveryList = pending.filter(s => s.tipo_entrega && s.tipo_entrega.toLowerCase() === 'delivery');
-                const recojoList = pending.filter(s => s.tipo_entrega && s.tipo_entrega.toLowerCase() === 'recojo');
+                if(!sales) return;
+                
+                // Limpiar espacios y hacer insensible a mayúsculas
+                const pending = sales.filter(s => s.estado_logistico && s.estado_logistico.trim() === 'En espera');
+                const deliveryList = pending.filter(s => s.tipo_entrega && s.tipo_entrega.trim().toLowerCase() === 'delivery');
+                const recojoList = pending.filter(s => s.tipo_entrega && s.tipo_entrega.trim().toLowerCase() === 'recojo');
 
+                console.log("Pedidos en espera encontrados:", pending.length);
+                
                 document.getElementById('count-delivery').innerText = deliveryList.length;
                 document.getElementById('count-recojo').innerText = recojoList.length;
 
                 renderTable('list-delivery', deliveryList);
                 renderTable('list-recojo', recojoList);
             }
+
+            // Cargar datos al iniciar
+            loadSales();
 
             function renderTable(id, list) {
                 const tbody = document.getElementById(id);
