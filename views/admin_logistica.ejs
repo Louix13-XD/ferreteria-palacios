@@ -191,7 +191,18 @@
 
         // Función global para confirmar entrega
         window.confirmDelivery = async (code) => {
-            if(!confirm(`¿Marcar el pedido #${code.replace('ORD-', '')} como entregado?`)) return;
+            const result = await Swal.fire({
+                title: '¿Confirmar entrega?',
+                text: `¿Estás seguro de marcar el pedido #${code.replace('ORD-', '')} como entregado?`,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'Sí, entregado',
+                cancelButtonText: 'Cancelar',
+                reverseButtons: true
+            });
+
+            if(!result.isConfirmed) return;
+
             try {
                 const res = await fetch('/api/ventas/actualizar-logistica', {
                     method: 'POST',
@@ -200,14 +211,20 @@
                 });
                 const data = await res.json();
                 if(data.success) {
-                    alert("¡Pedido entregado con éxito!");
+                    Swal.fire({
+                        title: '¡Éxito!',
+                        text: 'El pedido ha sido marcado como entregado.',
+                        icon: 'success',
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
                     loadSales(); 
                 } else {
-                    alert("Error: " + (data.message || "No se pudo actualizar."));
+                    Swal.fire('Error', data.message || "No se pudo actualizar.", 'error');
                 }
             } catch(e) { 
                 console.error(e);
-                alert("Error de conexión al servidor.");
+                Swal.fire('Error', 'Hubo un problema de conexión.', 'error');
             }
         };
 

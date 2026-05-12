@@ -283,23 +283,25 @@
                 const card = document.getElementById('cardNum').value;
 
                 if (!name || !dni || !card) {
-                    alert("Por favor, completa tu Nombre, DNI y Datos de Tarjeta.");
+                    Swal.fire('Datos incompletos', 'Por favor, completa tu Nombre, DNI y Datos de Tarjeta.', 'warning');
                     return;
                 }
 
                 // La dirección solo es obligatoria si es Delivery
                 if (typeEntrega === 'delivery' && !addr) {
-                    alert("Por favor, ingresa una dirección para el envío.");
+                    Swal.fire('Falta dirección', 'Por favor, ingresa una dirección para el envío a domicilio.', 'warning');
                     return;
                 }
 
-                // Mostrar modal si bootstrap está disponible
-                let modal;
-                if (typeof bootstrap !== 'undefined') {
-                    const modalEl = document.getElementById('processingModal');
-                    modal = new bootstrap.Modal(modalEl);
-                    modal.show();
-                }
+                // Mostrar carga moderna
+                Swal.fire({
+                    title: 'Procesando Pago',
+                    html: 'Estamos validando tu transacción, por favor espera...',
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
 
                 const c_id = parseInt('<%= user ? user.id : 1 %>');
                 const finalTotal = parseFloat((subtotal + shipping).toFixed(2));
@@ -330,16 +332,21 @@
 
                 if (data.success) {
                     localStorage.removeItem('cart');
-                    setTimeout(() => {
+                    Swal.fire({
+                        title: '¡Pago Exitoso!',
+                        text: 'Tu pedido ha sido procesado correctamente.',
+                        icon: 'success',
+                        confirmButtonText: 'Ver Boleta',
+                        confirmButtonColor: '#ffc107'
+                    }).then(() => {
                         window.location.href = '/boleta/' + data.codigo_boleta.replace('ORD-', '');
-                    }, 1500);
+                    });
                 } else { 
-                    alert('Error: ' + (data.message || 'No se pudo procesar la venta.')); 
-                    if(modal) modal.hide(); 
+                    Swal.fire('Error', data.message || 'No se pudo procesar la venta.', 'error');
                 }
             } catch (err) { 
                 console.error("Error:", err);
-                alert('Error técnico: ' + err.message); 
+                Swal.fire('Error Técnico', err.message, 'error');
             }
         };
     });
