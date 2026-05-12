@@ -265,13 +265,18 @@
             console.log("Iniciando envío de orden manual...");
             
             try {
-                // Validar campos manualmente para evitar bloqueos de navegador
+                // Validar campos manualmente según el tipo de entrega
                 const name = document.getElementById('cust-name').value;
                 const addr = document.getElementById('cust-address').value;
                 const card = document.getElementById('cardNum').value;
 
-                if (!name || !addr || !card) {
-                    alert("Por favor, completa los campos de nombre, dirección y tarjeta.");
+                if (!name || !card) {
+                    alert("Por favor, completa tu nombre y los datos de la tarjeta.");
+                    return;
+                }
+
+                if (typeEntrega === 'delivery' && !addr) {
+                    alert("Por favor, ingresa una dirección para el envío a domicilio.");
                     return;
                 }
 
