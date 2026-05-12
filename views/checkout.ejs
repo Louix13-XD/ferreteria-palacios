@@ -54,8 +54,8 @@
                             </div>
                         </div>
 
-                        <!-- Datos del Cliente (Obligatorios para todos) -->
-                        <div class="mb-4">
+                        <!-- Datos del Cliente (Nombre y DNI siempre visibles) -->
+                        <div class="mb-3">
                             <h5 class="fw-bold mb-3 small text-uppercase text-muted">Datos del Destinatario</h5>
                             <div class="row g-3">
                                 <div class="col-md-8">
@@ -66,6 +66,12 @@
                                     <label class="form-label small fw-bold">D.N.I. / R.U.C.</label>
                                     <input type="text" id="cust-dni" class="form-control" placeholder="8 o 11 dígitos" value="<%= user ? user.dni : '' %>" maxlength="11">
                                 </div>
+                            </div>
+                        </div>
+
+                        <!-- Dirección (Solo visible para Delivery) -->
+                        <div id="address-fields" class="mb-4">
+                            <div class="row g-3">
                                 <div class="col-12">
                                     <label class="form-label small fw-bold">Dirección Completa</label>
                                     <input type="text" id="cust-address" class="form-control" placeholder="Calle, Número, Distrito" value="<%= user ? user.direccion : '' %>">
@@ -276,8 +282,14 @@
                 const addr = document.getElementById('cust-address').value;
                 const card = document.getElementById('cardNum').value;
 
-                if (!name || !dni || !addr || !card) {
-                    alert("Por favor, completa todos los campos: Nombre, DNI, Dirección y Datos de Tarjeta.");
+                if (!name || !dni || !card) {
+                    alert("Por favor, completa tu Nombre, DNI y Datos de Tarjeta.");
+                    return;
+                }
+
+                // La dirección solo es obligatoria si es Delivery
+                if (typeEntrega === 'delivery' && !addr) {
+                    alert("Por favor, ingresa una dirección para el envío.");
                     return;
                 }
 
@@ -299,7 +311,7 @@
                     metodo_pago: 'Tarjeta',
                     tipo_entrega: typeEntrega,
                     costo_envio: shipping,
-                    direccion_envio: addr,
+                    direccion_envio: typeEntrega === 'delivery' ? addr : 'Recojo en Tienda',
                     detalles: cart.map(item => ({
                         id: item.id,
                         cantidad: parseInt(item.quantity),
