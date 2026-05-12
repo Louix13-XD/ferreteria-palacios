@@ -106,13 +106,13 @@
                                 </div>
                                 <div class="col-md-6 mb-3">
                                     <label class="form-label small fw-bold">CVV</label>
-                                    <input type="password" id="cardCvv" class="form-control" placeholder="***" maxlength="3" required>
+                                    <input type="password" id="cardCvv" class="form-control" placeholder="***" maxlength="3">
                                 </div>
                             </div>
                         </div>
 
                         <div class="mt-4">
-                            <button type="submit" class="btn btn-dark w-100 fw-bold py-3 rounded-3 shadow-sm">FINALIZAR COMPRA</button>
+                            <button type="button" onclick="processOrder()" class="btn btn-dark w-100 fw-bold py-3 rounded-3 shadow-sm">FINALIZAR COMPRA</button>
                             <p class="text-center extra-small text-muted mt-3 mb-0">Al finalizar, aceptas nuestros términos y condiciones de venta.</p>
                         </div>
                         <div id="btnLoading" class="spinner-border spinner-border-sm d-none" role="status"></div>
@@ -261,22 +261,29 @@
         });
 
         // Envío final
-        document.getElementById('checkoutForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            console.log("Iniciando envío de orden...");
+        window.processOrder = async () => {
+            console.log("Iniciando envío de orden manual...");
             
             try {
+                // Validar campos manualmente para evitar bloqueos de navegador
+                const name = document.getElementById('cust-name').value;
+                const addr = document.getElementById('cust-address').value;
+                const card = document.getElementById('cardNum').value;
+
+                if (!name || !addr || !card) {
+                    alert("Por favor, completa los campos de nombre, dirección y tarjeta.");
+                    return;
+                }
+
                 // Mostrar modal si bootstrap está disponible
                 let modal;
                 if (typeof bootstrap !== 'undefined') {
-                    modal = new bootstrap.Modal(document.getElementById('processingModal'));
+                    const modalEl = document.getElementById('processingModal');
+                    modal = new bootstrap.Modal(modalEl);
                     modal.show();
                 }
 
-                // Usar el ID del usuario desde la sesión de EJS (Plan B: 1)
                 const c_id = parseInt('<%= user ? user.id : 1 %>');
-                
-                // Preparar datos limpios
                 const finalTotal = parseFloat((subtotal + shipping).toFixed(2));
 
                 const payload = {
@@ -285,7 +292,7 @@
                     metodo_pago: 'Tarjeta',
                     tipo_entrega: typeEntrega,
                     costo_envio: shipping,
-                    direccion_envio: typeEntrega === 'delivery' ? document.getElementById('cust-address').value : 'Recojo en Tienda',
+                    direccion_envio: typeEntrega === 'delivery' ? addr : 'Recojo en Tienda',
                     detalles: cart.map(item => ({
                         id: item.id,
                         cantidad: parseInt(item.quantity),
@@ -294,8 +301,6 @@
                     }))
                 };
 
-                console.log("Payload a enviar:", payload);
-
                 const res = await fetch('/api/ventas', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -303,27 +308,21 @@
                 });
                 
                 const data = await res.json();
-                console.log("Respuesta del servidor:", data);
 
                 if (data.success) {
                     localStorage.removeItem('cart');
-                    // Pequeña espera para que el usuario vea el éxito
                     setTimeout(() => {
                         window.location.href = '/boleta/' + data.codigo_boleta.replace('ORD-', '');
                     }, 1500);
                 } else { 
-                    alert('El servidor rechazó la venta: ' + (data.message || 'Error desconocido')); 
+                    alert('Error: ' + (data.message || 'No se pudo procesar la venta.')); 
                     if(modal) modal.hide(); 
                 }
             } catch (err) { 
-                console.error("Error crítico en checkout:", err);
-                alert('Error de conexión o de sistema: ' + err.message); 
-                // Intentar cerrar el modal si existe
-                const modalEl = document.getElementById('processingModal');
-                const modalInstance = bootstrap.Modal.getInstance(modalEl);
-                if(modalInstance) modalInstance.hide();
+                console.error("Error:", err);
+                alert('Error técnico: ' + err.message); 
             }
-        });
+        };
     });
 </script>
 
