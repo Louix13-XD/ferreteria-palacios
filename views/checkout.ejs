@@ -263,41 +263,66 @@
         // Envío final
         document.getElementById('checkoutForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const modal = new bootstrap.Modal(document.getElementById('processingModal'));
-            modal.show();
-
-            // Usar el ID del usuario desde la sesión de EJS
-            const c_id = '<%= user ? user.id : 1 %>';
-
-            const payload = {
-                cliente_id: c_id,
-                total_venta: subtotal + shipping,
-                metodo_pago: 'Tarjeta',
-                tipo_entrega: typeEntrega,
-                costo_envio: shipping,
-                direccion_envio: typeEntrega === 'delivery' ? document.getElementById('cust-address').value : 'Recojo en Tienda',
-                detalles: cart.map(item => ({
-                    id: item.id,
-                    cantidad: item.quantity,
-                    precio: item.price,
-                    nombre: item.name
-                }))
-            };
-
+            console.log("Iniciando envío de orden...");
+            
             try {
+                // Mostrar modal si bootstrap está disponible
+                let modal;
+                if (typeof bootstrap !== 'undefined') {
+                    modal = new bootstrap.Modal(document.getElementById('processingModal'));
+                    modal.show();
+                }
+
+                // Usar el ID del usuario desde la sesión de EJS (Plan B: 1)
+                const c_id = parseInt('<%= user ? user.id : 1 %>');
+                
+                // Preparar datos limpios
+                const finalTotal = parseFloat((subtotal + shipping).toFixed(2));
+
+                const payload = {
+                    cliente_id: c_id,
+                    total_venta: finalTotal,
+                    metodo_pago: 'Tarjeta',
+                    tipo_entrega: typeEntrega,
+                    costo_envio: shipping,
+                    direccion_envio: typeEntrega === 'delivery' ? document.getElementById('cust-address').value : 'Recojo en Tienda',
+                    detalles: cart.map(item => ({
+                        id: item.id,
+                        cantidad: parseInt(item.quantity),
+                        precio: parseFloat(item.price),
+                        nombre: item.name
+                    }))
+                };
+
+                console.log("Payload a enviar:", payload);
+
                 const res = await fetch('/api/ventas', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)
                 });
+                
                 const data = await res.json();
+                console.log("Respuesta del servidor:", data);
+
                 if (data.success) {
                     localStorage.removeItem('cart');
+                    // Pequeña espera para que el usuario vea el éxito
                     setTimeout(() => {
                         window.location.href = '/boleta/' + data.codigo_boleta.replace('ORD-', '');
-                    }, 2000);
-                } else { alert('Error al procesar'); modal.hide(); }
-            } catch (err) { alert('Error de red'); modal.hide(); }
+                    }, 1500);
+                } else { 
+                    alert('El servidor rechazó la venta: ' + (data.message || 'Error desconocido')); 
+                    if(modal) modal.hide(); 
+                }
+            } catch (err) { 
+                console.error("Error crítico en checkout:", err);
+                alert('Error de conexión o de sistema: ' + err.message); 
+                // Intentar cerrar el modal si existe
+                const modalEl = document.getElementById('processingModal');
+                const modalInstance = bootstrap.Modal.getInstance(modalEl);
+                if(modalInstance) modalInstance.hide();
+            }
         });
     });
 </script>
