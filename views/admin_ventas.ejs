@@ -28,6 +28,25 @@
             </div>
         </div>
 
+        <!-- Buscador Rápido Operativo -->
+        <div class="card border-0 bg-dark shadow-lg rounded-4 p-4 mb-5 text-white">
+            <div class="row align-items-center">
+                <div class="col-md-5">
+                    <h5 class="fw-bold mb-1 text-warning"><i class="bi bi-search me-2"></i>Buscador de Boleta</h5>
+                    <p class="mb-0 small opacity-75">Escribe el código para confirmar que el cliente ya tiene su producto.</p>
+                </div>
+                <div class="col-md-7">
+                    <div class="input-group input-group-lg shadow-sm">
+                        <input type="text" id="dispatch-search" class="form-control border-0 bg-white" placeholder="Ej: 8957">
+                        <button class="btn btn-warning fw-bold px-4">BUSCAR</button>
+                    </div>
+                    <div id="search-result" class="mt-3 d-none">
+                        <!-- JS Dinámico -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
             <div class="table-responsive">
                 <table class="table table-hover align-middle mb-0">
@@ -50,8 +69,11 @@
     </main>
 
     <script>
+        let allSales = [];
+
         document.addEventListener('DOMContentLoaded', () => {
             renderSales();
+            setupSearch();
         });
 
         async function renderSales() {
@@ -63,13 +85,14 @@
                 const data = await res.json();
                 
                 if (data.success) {
+                    allSales = data.ventas;
                     tbody.innerHTML = '';
-                    if (data.ventas.length === 0) {
+                    if (allSales.length === 0) {
                         tbody.innerHTML = '<tr><td colspan="6" class="text-center py-5 text-muted">No hay ventas registradas todavía.</td></tr>';
                         return;
                     }
 
-                    data.ventas.forEach((sale) => {
+                    allSales.forEach((sale) => {
                         try {
                             const date = sale.fecha_compra ? new Date(sale.fecha_compra).toLocaleString() : 'F. Desconocida';
                             const estadoLogistico = sale.estado_logistico || 'En espera';
@@ -97,9 +120,61 @@
                     tbody.innerHTML = `<tr><td colspan="6" class="text-center py-5 text-danger">Error del servidor: ${data.message || 'No se pudo obtener la lista'}.</td></tr>`;
                 }
             } catch (error) {
-                tbody.innerHTML = `<tr><td colspan="6" class="text-center py-5 text-danger">Error de conexión. Verifica tu internet o si el servidor está activo.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="6" class="text-center py-5 text-danger">Error de conexión.</td></tr>`;
             }
         }
+
+        function setupSearch() {
+            const input = document.getElementById('dispatch-search');
+            const resultDiv = document.getElementById('search-result');
+
+            input.addEventListener('input', (e) => {
+                const val = e.target.value.trim().toLowerCase();
+                if(val.length > 0) {
+                    const match = allSales.find(s => s.codigo_boleta.toLowerCase().includes(val) || s.codigo_boleta.replace('ORD-', '').includes(val));
+                    if(match) {
+                        resultDiv.classList.remove('d-none');
+                        const status = match.estado_logistico || 'En espera';
+                        resultDiv.innerHTML = `
+                            <div class="alert bg-white text-dark d-flex justify-content-between align-items-center shadow rounded-3 border-0">
+                                <div>
+                                    <span class="badge bg-dark mb-2">RESULTADO ENCONTRADO</span>
+                                    <h6 class="fw-bold mb-0">Boleta #${match.codigo_boleta.replace('ORD-', '')} - ${match.cliente_nombre || 'Cliente'}</h6>
+                                    <small class="text-muted">Total: S/ ${parseFloat(match.total_venta).toFixed(2)} | Estado: ${status}</small>
+                                </div>
+                                <div>
+                                    ${status === 'En espera' 
+                                        ? `<button class="btn btn-success fw-bold px-4" onclick="fastConfirm('${match.codigo_boleta}')">CONFIRMAR ENTREGA</button>`
+                                        : `<span class="badge bg-success px-4 py-2">YA ENTREGADO</span>`}
+                                </div>
+                            </div>
+                        `;
+                    } else {
+                        resultDiv.innerHTML = '<p class="text-warning small mt-2">No se encontró ninguna boleta con ese código.</p>';
+                        resultDiv.classList.remove('d-none');
+                    }
+                } else {
+                    resultDiv.classList.add('d-none');
+                }
+            });
+        }
+
+        window.fastConfirm = async (code) => {
+            if(!confirm(`¿Marcar la boleta #${code.replace('ORD-', '')} como ENTREGADA?`)) return;
+            try {
+                const res = await fetch('/api/ventas/actualizar-logistica', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ codigo: code, estado: 'Entregado' })
+                });
+                const data = await res.json();
+                if(data.success) {
+                    document.getElementById('dispatch-search').value = '';
+                    document.getElementById('search-result').classList.add('d-none');
+                    renderSales();
+                }
+            } catch(e) { console.error(e); }
+        };
 
         async function deleteSale(id) {
             if(confirm('¿Deseas eliminar este registro de venta DEFINITIVAMENTE de la base de datos?')) {
