@@ -225,7 +225,7 @@
         optDelivery.addEventListener('click', () => {
             optDelivery.classList.add('active');
             optPickup.classList.remove('active');
-            addressFields.classList.remove('d-none');
+            addressFields.classList.remove('d-none'); // MOSTRAR dirección
             pickupInfo.classList.add('d-none');
             shipping = subtotal >= 200 ? 0 : 15;
             typeEntrega = 'delivery';
@@ -235,7 +235,7 @@
         optPickup.addEventListener('click', () => {
             optPickup.classList.add('active');
             optDelivery.classList.remove('active');
-            addressFields.classList.add('d-none');
+            addressFields.classList.add('d-none'); // OCULTAR dirección
             pickupInfo.classList.remove('d-none');
             shipping = 0;
             typeEntrega = 'recojo';
