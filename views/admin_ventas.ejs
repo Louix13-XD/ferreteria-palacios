@@ -163,7 +163,18 @@
         }
 
         window.fastConfirm = async (code) => {
-            if(!confirm(`¿Marcar la boleta #${code.replace('ORD-', '')} como ENTREGADA?`)) return;
+            const result = await Swal.fire({
+                title: '¿Confirmar entrega?',
+                text: `¿Deseas marcar la boleta #${code.replace('ORD-', '')} como ENTREGADA?`,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'Sí, entregada',
+                cancelButtonText: 'No todavía',
+                reverseButtons: true
+            });
+
+            if(!result.isConfirmed) return;
+
             try {
                 const res = await fetch('/api/ventas/actualizar-logistica', {
                     method: 'POST',
@@ -172,19 +183,42 @@
                 });
                 const data = await res.json();
                 if(data.success) {
+                    Swal.fire({
+                        title: '¡Actualizado!',
+                        text: 'La boleta ha sido marcada como entregada.',
+                        icon: 'success',
+                        timer: 1500,
+                        showConfirmButton: false
+                    });
                     document.getElementById('dispatch-search').value = '';
                     document.getElementById('search-result').classList.add('d-none');
                     renderSales();
                 }
-            } catch(e) { console.error(e); }
+            } catch(e) { 
+                console.error(e); 
+                Swal.fire('Error', 'Hubo un problema de conexión.', 'error');
+            }
         };
 
         async function deleteSale(id) {
-            if(confirm('¿Deseas eliminar este registro de venta DEFINITIVAMENTE de la base de datos?')) {
+            const result = await Swal.fire({
+                title: '¿Eliminar registro?',
+                text: '¿Deseas eliminar este registro de venta DEFINITIVAMENTE de la base de datos?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                confirmButtonText: 'Sí, eliminar',
+                cancelButtonText: 'Cancelar'
+            });
+
+            if(result.isConfirmed) {
                 try {
                     await fetch('/api/ventas/' + id, { method: 'DELETE' });
+                    Swal.fire('Eliminado', 'La venta ha sido borrada.', 'success');
                     renderSales();
-                } catch(err) { alert('Error al eliminar'); }
+                } catch(err) { 
+                    Swal.fire('Error', 'No se pudo eliminar el registro.', 'error');
+                }
             }
         }
     </script>
