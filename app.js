@@ -140,7 +140,10 @@ app.post('/api/login', async (req, res) => {
                     id: user.id,
                     name: user.nombre_completo,
                     email: user.email,
-                    role: user.rol
+                    role: user.rol,
+                    dni: user.dni,
+                    telefono: user.telefono,
+                    direccion: user.direccion
                 }
             });
         } else {

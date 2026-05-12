@@ -57,17 +57,13 @@
                         <div id="address-fields">
                             <h5 class="fw-bold mb-3 small text-uppercase">Datos del Destinatario</h5>
                             <div class="row g-3">
-                                <div class="col-md-6">
-                                    <label class="form-label small fw-bold">Nombre</label>
-                                    <input type="text" id="cust-name" class="form-control" placeholder="Ej: Juan" required>
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="form-label small fw-bold">Apellidos</label>
-                                    <input type="text" id="cust-lastname" class="form-control" placeholder="Ej: Pérez" required>
+                                <div class="col-md-12">
+                                    <label class="form-label small fw-bold">Nombre Completo</label>
+                                    <input type="text" id="cust-name" class="form-control" placeholder="Ej: Juan Pérez" value="<%= user ? user.name : '' %>" required>
                                 </div>
                                 <div class="col-12">
                                     <label class="form-label small fw-bold">Dirección Completa</label>
-                                    <input type="text" id="cust-address" class="form-control" placeholder="Calle, Número, Distrito" required>
+                                    <input type="text" id="cust-address" class="form-control" placeholder="Calle, Número, Distrito" value="<%= user ? user.direccion : '' %>" required>
                                 </div>
                             </div>
                         </div>
