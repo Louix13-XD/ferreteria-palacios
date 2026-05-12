@@ -261,9 +261,11 @@
                                 <button class="btn btn-sm btn-outline-primary me-1" onclick="openEditModal(${p.id})" title="Editar">
                                     <i class="bi bi-pencil"></i>
                                 </button>
+                                ${currentUser && (currentUser.role === 'Admin' || currentUser.role === 'admin') ? `
                                 <button class="btn btn-sm btn-outline-danger" onclick="deleteProduct(${p.id})" title="Eliminar">
                                     <i class="bi bi-trash"></i>
                                 </button>
+                                ` : ''}
                             </td>
                         </tr>
                     `;
