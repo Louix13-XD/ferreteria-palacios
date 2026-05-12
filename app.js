@@ -109,6 +109,17 @@ app.get('/boleta/:id', (req, res) => {
 });
 
 // --- RUTAS DE API CON BASE DE DATOS ---
+// Obtener categorías (Movido aquí para máxima prioridad)
+app.get('/api/categorias', async (req, res) => {
+    try {
+        const result = await db.query('SELECT * FROM categorias ORDER BY nombre ASC');
+        res.json({ success: true, categories: result.rows });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ success: false, message: 'Error al obtener categorías' });
+    }
+});
+
 app.post('/api/login', async (req, res) => {
     try {
         const { username, password } = req.body;
