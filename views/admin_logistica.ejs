@@ -88,170 +88,158 @@
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            let sales = [];
+        let sales = [];
 
-            async function loadSales() {
-                try {
-                    const res = await fetch('/api/ventas');
-                    const data = await res.json();
-                    
-                    if(data.success) {
-                        sales = data.ventas;
-                        renderLists();
-                    }
-                } catch(e) { 
-                    console.error("Error al cargar ventas:", e); 
+        // Función global para cargar ventas
+        async function loadSales() {
+            try {
+                const res = await fetch('/api/ventas');
+                const data = await res.json();
+                if(data.success) {
+                    sales = data.ventas;
+                    renderLists();
                 }
+            } catch(e) { 
+                console.error("Error al cargar ventas:", e); 
             }
+        }
 
-            function renderLists() {
-                if(!sales || sales.length === 0) return;
-                
-                // Limpiar espacios y hacer insensible a mayúsculas
-                const pending = sales.filter(s => s.estado_logistico && s.estado_logistico.trim() === 'En espera');
-                const deliveryList = pending.filter(s => s.tipo_entrega && s.tipo_entrega.trim().toLowerCase() === 'delivery');
-                const recojoList = pending.filter(s => s.tipo_entrega && s.tipo_entrega.trim().toLowerCase() === 'recojo');
-                
-                document.getElementById('count-delivery').innerText = deliveryList.length;
-                document.getElementById('count-recojo').innerText = recojoList.length;
+        // Función para renderizar las listas de logística
+        function renderLists() {
+            if(!sales || sales.length === 0) return;
+            
+            const pending = sales.filter(s => s.estado_logistico && s.estado_logistico.trim() === 'En espera');
+            const deliveryList = pending.filter(s => s.tipo_entrega && s.tipo_entrega.trim().toLowerCase() === 'delivery');
+            const recojoList = pending.filter(s => s.tipo_entrega && s.tipo_entrega.trim().toLowerCase() === 'recojo');
+            
+            document.getElementById('count-delivery').innerText = deliveryList.length;
+            document.getElementById('count-recojo').innerText = recojoList.length;
 
-                renderTable('list-delivery', deliveryList);
-                renderTable('list-recojo', recojoList);
+            renderTable('list-delivery', deliveryList);
+            renderTable('list-recojo', recojoList);
+        }
+
+        // Función para renderizar las tablas
+        function renderTable(id, list) {
+            const tbody = document.getElementById(id);
+            if(!tbody) return;
+            tbody.innerHTML = '';
+            if(list.length === 0) {
+                tbody.innerHTML = '<tr><td class="text-center py-4 text-muted small">No hay pedidos pendientes aquí.</td></tr>';
+                return;
             }
+            list.forEach(s => {
+                const code = s.codigo_boleta.replace('ORD-', '');
+                const cliente = s.cliente_nombre || 'Cliente';
+                tbody.innerHTML += `
+                    <tr>
+                        <td class="ps-4">
+                            <div class="fw-bold">#${code}</div>
+                            <small class="text-muted">${cliente}</small>
+                        </td>
+                        <td class="text-end pe-4">
+                            <button class="btn btn-light btn-sm me-2" onclick="verDetalle('${s.codigo_boleta}')">
+                                <i class="bi bi-eye"></i>
+                            </button>
+                            <button class="btn btn-dark btn-sm fw-bold" onclick="confirmDelivery('${s.codigo_boleta}')">ENTREGADO</button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
 
-            // Cargar datos al iniciar
-            loadSales();
-
-            function renderTable(id, list) {
-                const tbody = document.getElementById(id);
-                tbody.innerHTML = '';
-                if(list.length === 0) {
-                    tbody.innerHTML = '<tr><td class="text-center py-4 text-muted small">No hay pedidos pendientes aquí.</td></tr>';
-                    return;
-                }
-                list.forEach(s => {
-                    const code = s.codigo_boleta.replace('ORD-', '');
-                    const cliente = s.cliente_nombre || 'Cliente';
-                    tbody.innerHTML += `
-                        <tr>
-                            <td class="ps-4">
-                                <div class="fw-bold">#${code}</div>
-                                <small class="text-muted">${cliente}</small>
-                            </td>
-                            <td class="text-end pe-4">
-                                <button class="btn btn-light btn-sm me-2" onclick="verDetalle('${s.codigo_boleta}')">
-                                    <i class="bi bi-eye"></i>
-                                </button>
-                                <button class="btn btn-dark btn-sm fw-bold" onclick="confirmDelivery('${s.codigo_boleta}')">ENTREGADO</button>
-                            </td>
-                        </tr>
+        // Función global para ver detalle
+        window.verDetalle = async (code) => {
+            const modal = new bootstrap.Modal(document.getElementById('modalDetalle'));
+            modal.show();
+            const content = document.getElementById('modalContent');
+            content.innerHTML = '<div class="text-center py-4"><div class="spinner-border text-warning"></div></div>';
+            
+            try {
+                const res = await fetch(`/api/ventas/detalle/${code}`);
+                const data = await res.json();
+                if(data.success) {
+                    document.getElementById('modalTitle').innerText = `Pedido #${code.replace('ORD-', '')}`;
+                    let html = `
+                        <p class="mb-3"><strong>Cliente:</strong> ${data.venta.cliente_nombre || 'Desconocido'}</p>
+                        <p class="mb-3 small text-muted"><i class="bi bi-geo-alt me-1"></i>${data.venta.direccion_envio || 'No especificada'}</p>
+                        <hr>
+                        <h6 class="fw-bold mb-3 small text-uppercase text-muted">Productos:</h6>
+                        <div class="list-group list-group-flush mb-3">
                     `;
-                });
-            }
-
-            window.verDetalle = async (code) => {
-                const modal = new bootstrap.Modal(document.getElementById('modalDetalle'));
-                modal.show();
-                
-                const content = document.getElementById('modalContent');
-                content.innerHTML = '<div class="text-center py-4"><div class="spinner-border text-warning"></div></div>';
-                
-                try {
-                    const res = await fetch(`/api/ventas/detalle/${code}`);
-                    const data = await res.json();
-                    if(data.success) {
-                        document.getElementById('modalTitle').innerText = `Pedido #${code.replace('ORD-', '')}`;
-                        let html = `
-                            <p class="mb-3"><strong>Cliente:</strong> ${data.venta.cliente_nombre || 'Desconocido'}</p>
-                            <p class="mb-3 small text-muted"><i class="bi bi-geo-alt me-1"></i>${data.venta.direccion_envio || 'No especificada'}</p>
-                            <hr>
-                            <h6 class="fw-bold mb-3">Productos:</h6>
-                            <div class="list-group list-group-flush mb-3">
+                    data.productos.forEach(p => {
+                        html += `
+                            <div class="list-group-item d-flex justify-content-between align-items-center px-0">
+                                <div>
+                                    <div class="fw-bold small">${p.nombre_producto}</div>
+                                    <small class="text-muted">Cant: ${p.cantidad}</small>
+                                </div>
+                                <span class="fw-bold small">S/ ${parseFloat(p.subtotal).toFixed(2)}</span>
+                            </div>
                         `;
-                        data.productos.forEach(p => {
-                            html += `
-                                <div class="list-group-item d-flex justify-content-between align-items-center px-0">
+                    });
+                    html += `</div>
+                        <div class="d-flex justify-content-between align-items-center bg-light p-3 rounded-3 mt-3">
+                            <span class="fw-bold">TOTAL PAGADO</span>
+                            <h5 class="fw-bold text-dark mb-0">S/ ${parseFloat(data.venta.total_venta).toFixed(2)}</h5>
+                        </div>
+                    `;
+                    content.innerHTML = html;
+                }
+            } catch(e) { content.innerHTML = '<p class="text-danger">Error al cargar datos.</p>'; }
+        };
+
+        // Función global para confirmar entrega
+        window.confirmDelivery = async (code) => {
+            if(!confirm(`¿Marcar el pedido #${code.replace('ORD-', '')} como entregado?`)) return;
+            try {
+                const res = await fetch('/api/ventas/actualizar-logistica', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ codigo: code, estado: 'Entregado' })
+                });
+                const data = await res.json();
+                if(data.success) {
+                    alert("¡Pedido entregado con éxito!");
+                    loadSales(); 
+                } else {
+                    alert("Error: " + (data.message || "No se pudo actualizar."));
+                }
+            } catch(e) { 
+                console.error(e);
+                alert("Error de conexión al servidor.");
+            }
+        };
+
+        // Escuchador para el buscador
+        document.addEventListener('DOMContentLoaded', () => {
+            loadSales();
+            const searchInput = document.getElementById('dispatch-search');
+            if(searchInput) {
+                searchInput.addEventListener('input', function(e) {
+                    const val = e.target.value.trim().toLowerCase();
+                    const resultDiv = document.getElementById('search-result');
+                    if(val.length > 0) {
+                        const match = sales.find(s => s.codigo_boleta.toLowerCase().includes(val) || s.codigo_boleta.replace('ORD-', '').includes(val));
+                        if(match) {
+                            resultDiv.classList.remove('d-none');
+                            resultDiv.innerHTML = `
+                                <div class="alert bg-white text-dark d-flex justify-content-between align-items-center shadow-sm border-0 mb-0">
                                     <div>
-                                        <div class="fw-bold small">${p.nombre_producto}</div>
-                                        <small class="text-muted">Cant: ${p.cantidad} x S/ ${parseFloat(p.precio_unitario).toFixed(2)}</small>
+                                        <h6 class="fw-bold mb-0">Pedido #${match.codigo_boleta.replace('ORD-', '')} - ${match.cliente_nombre || 'Cliente'}</h6>
+                                        <small class="text-muted">${match.tipo_entrega === 'delivery' ? 'Delivery' : 'Recojo en tienda'} | S/ ${parseFloat(match.total_venta).toFixed(2)}</small>
                                     </div>
-                                    <span class="fw-bold small">S/ ${parseFloat(p.subtotal).toFixed(2)}</span>
+                                    <div>
+                                        ${match.estado_logistico === 'En espera' 
+                                            ? `<button class="btn btn-success fw-bold" onclick="confirmDelivery('${match.codigo_boleta}')">CONFIRMAR ENTREGA</button>`
+                                            : `<span class="badge bg-success px-3 py-2">YA ENTREGADO</span>`}
+                                    </div>
                                 </div>
                             `;
-                        });
-                        html += `</div>
-                            <div class="d-flex justify-content-between align-items-center bg-light p-3 rounded-3 mt-3">
-                                <span class="fw-bold">TOTAL PAGADO</span>
-                                <h5 class="fw-bold text-dark mb-0">S/ ${parseFloat(data.venta.total_venta).toFixed(2)}</h5>
-                            </div>
-                        `;
-                        content.innerHTML = html;
-                        
-                        // Configurar botón del modal
-                        const btnConfirm = document.getElementById('btn-confirm-modal');
-                        btnConfirm.onclick = () => {
-                            modal.hide();
-                            confirmDelivery(code);
-                        };
-                    }
-                } catch(e) { content.innerHTML = '<p class="text-danger">Error al cargar datos.</p>'; }
-            };
-
-            document.getElementById('dispatch-search').addEventListener('input', function(e) {
-                const val = e.target.value.trim().toLowerCase();
-                const resultDiv = document.getElementById('search-result');
-                if(val.length > 0) {
-                    const match = sales.find(s => s.codigo_boleta.toLowerCase().includes(val) || s.codigo_boleta.replace('ORD-', '').includes(val));
-                    if(match) {
-                        resultDiv.classList.remove('d-none');
-                        resultDiv.innerHTML = `
-                            <div class="alert bg-white text-dark d-flex justify-content-between align-items-center shadow-sm border-0 mb-0">
-                                <div>
-                                    <h6 class="fw-bold mb-0">Pedido #${match.codigo_boleta.replace('ORD-', '')} - ${match.cliente_nombre || 'Cliente'}</h6>
-                                    <small class="text-muted">${match.tipo_entrega === 'delivery' ? 'Delivery' : 'Recojo en tienda'} | S/ ${parseFloat(match.total_venta).toFixed(2)}</small>
-                                </div>
-                                <div>
-                                    ${match.estado_logistico === 'En espera' 
-                                        ? `<button class="btn btn-success fw-bold" onclick="confirmDelivery('${match.codigo_boleta}')">CONFIRMAR ENTREGA</button>`
-                                        : `<span class="badge bg-success px-3 py-2">YA ENTREGADO</span>`}
-                                </div>
-                            </div>
-                        `;
-                    } else {
-                        resultDiv.innerHTML = '<p class="text-warning small mb-0 mt-2">No se encontró el pedido.</p>';
-                    }
-                } else { resultDiv.classList.add('d-none'); }
-            });
-
-            window.confirmDelivery = async (code) => {
-                if(!confirm(`¿Marcar el pedido #${code.replace('ORD-', '')} como entregado?`)) return;
-                try {
-                    const res = await fetch('/api/ventas/actualizar-logistica', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ codigo: code, estado: 'Entregado' })
-                    });
-                    const data = await res.json();
-                    if(data.success) {
-                        alert("¡Pedido entregado con éxito!");
-                        if(document.getElementById('dispatch-search')) {
-                            document.getElementById('dispatch-search').value = '';
-                        }
-                        if(document.getElementById('search-result')) {
-                            document.getElementById('search-result').classList.add('d-none');
-                        }
-                        loadSales(); // Nombre corregido
-                    } else {
-                        alert("Error: " + (data.message || "No se pudo actualizar."));
-                    }
-                } catch(e) { 
-                    console.error(e);
-                    alert("Error de conexión al servidor.");
-                }
-            };
-
-            loadSales(); // Carga inicial corregida también aquí
+                        } else { resultDiv.innerHTML = '<p class="text-warning small mb-0 mt-2">No se encontró el pedido.</p>'; }
+                    } else { resultDiv.classList.add('d-none'); }
+                });
+            }
         });
     </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
