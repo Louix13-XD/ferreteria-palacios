@@ -317,7 +317,7 @@
             descripcion: document.getElementById('prod-desc').value,
             marca: document.getElementById('prod-marca').value,
             imagen_url: document.getElementById('prod-img').value || 'https://images.unsplash.com/photo-1581147036324-c17da42ef5a0?w=300',
-            modificado_por: currentUser && currentUser.id ? parseInt(currentUser.id.split('-').pop()) || 1 : 1
+            modificado_por: (currentUser && currentUser.id) ? (typeof currentUser.id === 'string' ? parseInt(currentUser.id.split('-').pop()) : currentUser.id) : 1
         };
         
         try {
@@ -353,7 +353,7 @@
             descripcion: document.getElementById('edit-prod-desc').value,
             marca: document.getElementById('edit-prod-marca').value,
             imagen_url: document.getElementById('edit-prod-img').value,
-            modificado_por: currentUser && currentUser.id ? parseInt(currentUser.id.split('-').pop()) || 1 : 1
+            modificado_por: (currentUser && currentUser.id) ? (typeof currentUser.id === 'string' ? parseInt(currentUser.id.split('-').pop()) : currentUser.id) : 1
         };
         
         try {
