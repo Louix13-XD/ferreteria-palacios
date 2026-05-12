@@ -128,17 +128,17 @@
 
                 // Llenar items
                 const itemsContainer = document.getElementById('invoice-items');
+                const products = data.productos || [];
                 itemsContainer.innerHTML = '';
                 
-                if (!sale.items || sale.items.length === 0) {
+                if (products.length === 0) {
                     itemsContainer.innerHTML = `
                         <tr>
                             <td colspan="4" class="text-center py-3 text-muted italic">
-                                * Venta antigua registrada sin detalles técnicos disponibles.
+                                * Detalle de productos no disponible.
                             </td>
                         </tr>
                     `;
-                    // Usar el total de la venta para los cálculos si no hay items
                     const totalVal = parseFloat(sale.total_venta);
                     document.getElementById('total').innerText = 'S/ ' + totalVal.toFixed(2);
                     document.getElementById('subtotal').innerText = 'S/ ' + (totalVal / 1.18).toFixed(2);
@@ -148,7 +148,7 @@
 
                 let totalBase = 0;
 
-                sale.items.forEach(item => {
+                products.forEach(item => {
                     const price = parseFloat(item.precio_unitario);
                     const qty = parseInt(item.cantidad);
                     const basePrice = price / 1.18;
@@ -158,8 +158,8 @@
                     itemsContainer.innerHTML += `
                         <tr>
                             <td>
-                                <div class="fw-bold text-dark">${item.producto_nombre || 'Producto'}</div>
-                                <small class="text-muted">Cod: ${item.producto_id}</small>
+                                <div class="fw-bold text-dark">${item.nombre_producto || 'Producto'}</div>
+                                <small class="text-muted">ID: ${item.producto_id}</small>
                             </td>
                             <td class="text-center">${qty}</td>
                             <td class="text-end">S/ ${basePrice.toFixed(2)}</td>
@@ -167,6 +167,20 @@
                         </tr>
                     `;
                 });
+
+                // Si hay costo de envío, lo sumamos al final
+                const shipping = parseFloat(sale.costo_envio || 0);
+                if(shipping > 0) {
+                    itemsContainer.innerHTML += `
+                        <tr>
+                            <td><div class="fw-bold text-dark">SERVICIO DE ENVÍO</div></td>
+                            <td class="text-center">1</td>
+                            <td class="text-end">S/ ${(shipping/1.18).toFixed(2)}</td>
+                            <td class="text-end">S/ ${(shipping/1.18).toFixed(2)}</td>
+                        </tr>
+                    `;
+                    totalBase += (shipping/1.18);
+                }
 
                 // Cálculos finales
                 const subtotal = totalBase;
