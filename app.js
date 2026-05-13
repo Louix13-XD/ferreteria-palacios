@@ -80,6 +80,10 @@ app.get('/admin/usuarios', (req, res) => {
     res.render('admin_usuarios', { title: 'Gestión de Usuarios - Ferretería Palacios' });
 });
 
+app.get('/admin/mermas', (req, res) => {
+    res.render('admin_mermas', { title: 'Gestión de Mermas - Ferretería Palacios' });
+});
+
 app.get('/admin/personal', (req, res) => {
     res.render('admin_personal', { title: 'Gestión de Personal - Ferretería Palacios' });
 });
@@ -456,11 +460,11 @@ app.get('/api/ventas/cliente/:clienteId', async (req, res) => {
 
 // Anular Venta por defecto (No devuelve stock)
 app.post('/api/ventas/anular', async (req, res) => {
-    const { id } = req.body;
+    const { id, motivo } = req.body;
     try {
         await db.query(
-            "UPDATE ventas SET estado_pedido = 'Anulado - Defectuoso' WHERE id = $1",
-            [id]
+            "UPDATE ventas SET estado_pedido = 'Anulado - Defectuoso', motivo_anulacion = $1 WHERE id = $2",
+            [motivo || 'Falla técnica no especificada', id]
         );
         res.json({ success: true, message: 'Venta anulada por defecto técnico' });
     } catch (error) {

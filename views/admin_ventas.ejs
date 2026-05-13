@@ -225,32 +225,39 @@
             }
         };
 
-        async function annulSale(id, code) {
-            const result = await Swal.fire({
-                title: '¿Anular Venta por Defecto?',
-                html: `Estás a punto de anular la boleta <b>#${code}</b>.<br><br><small class='text-danger'>Esta acción indicará que el producto falló y el monto no contará en tus ganancias.</small>`,
+        async function annulSale(id) {
+            const { value: motivo } = await Swal.fire({
+                title: '¿Estás seguro de anular esta venta?',
+                text: "La venta se marcará como DEFECTUOSA y no sumará a las ganancias. Escribe el motivo de la falla:",
+                input: 'text',
+                inputPlaceholder: 'Ej: Motor quemado, producto roto...',
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
                 confirmButtonText: 'Sí, anular por falla',
                 cancelButtonText: 'Cancelar',
-                reverseButtons: true
+                inputValidator: (value) => {
+                    if (!value) {
+                        return '¡Debes escribir el motivo de la falla!'
+                    }
+                }
             });
 
-            if (result.isConfirmed) {
+            if (motivo) {
                 try {
-                    const res = await fetch('/api/ventas/anular', {
+                    const response = await fetch('/api/ventas/anular', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ id: id })
+                        body: JSON.stringify({ id, motivo })
                     });
-                    const data = await res.json();
-                    if (data.success) {
-                        Swal.fire('Venta Anulada', 'El registro se ha actualizado como defecto técnico.', 'success');
+                    const result = await response.json();
+                    if (result.success) {
+                        Swal.fire('Anulada', 'La venta ha sido registrada como merma.', 'success');
                         renderSales();
                     }
-                } catch (err) {
-                    Swal.fire('Error', 'No se pudo procesar la anulación.', 'error');
+                } catch (error) {
+                    Swal.fire('Error', 'No se pudo anular la venta', 'error');
                 }
             }
         }
