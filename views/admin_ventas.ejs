@@ -227,8 +227,11 @@
 
         async function annulSale(id, code) {
             try {
+                // Asegurar que el código tenga el prefijo ORD- si no lo tiene
+                const fullCode = code.startsWith('ORD-') ? code : `ORD-${code}`;
+                
                 // 1. Obtener los productos de esta venta
-                const resDetalle = await fetch(`/api/ventas/detalle/${code}`);
+                const resDetalle = await fetch(`/api/ventas/detalle/${fullCode}`);
                 const dataDetalle = await resDetalle.json();
                 
                 if (!dataDetalle.success) throw new Error("No se pudo obtener el detalle");
