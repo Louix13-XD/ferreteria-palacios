@@ -504,7 +504,11 @@ app.post('/api/ventas/anular-parcial', async (req, res) => {
         console.error(error);
         res.status(500).json({ success: false, message: 'Error en devolución parcial' });
     } finally {
-        client.release();// Obtener todas las mermas (productos defectuosos)
+        client.release();
+    }
+});
+
+// Obtener todas las mermas (productos defectuosos)
 app.get('/api/mermas', async (req, res) => {
     try {
         const result = await db.query(`
@@ -519,8 +523,6 @@ app.get('/api/mermas', async (req, res) => {
     } catch (error) {
         console.error(error);
         res.status(500).json({ success: false });
-    }
-});
     }
 });
 
