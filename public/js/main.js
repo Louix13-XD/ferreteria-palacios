@@ -174,8 +174,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     updateCartUI();
     updateWishlistUI();
     
+    const normalizeText = (text) => {
+        return text.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+    };
+
     if (typeof currentCategory !== 'undefined') {
-        const filtered = storeProducts.filter(p => p.category.toLowerCase() === currentCategory.toLowerCase());
+        const filtered = storeProducts.filter(p => normalizeText(p.category) === normalizeText(currentCategory));
         renderProducts(filtered, 'category-products');
         setupCategoryFilters(filtered);
     } else {
