@@ -179,7 +179,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     };
 
     if (typeof currentCategory !== 'undefined') {
-        const filtered = storeProducts.filter(p => normalizeText(p.category) === normalizeText(currentCategory));
+        const filtered = storeProducts.filter(p => normalizeText(p.category).includes(normalizeText(currentCategory)));
         renderProducts(filtered, 'category-products');
         setupCategoryFilters(filtered);
     } else {
