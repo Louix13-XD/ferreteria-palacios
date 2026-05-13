@@ -104,22 +104,37 @@
                         try {
                             const date = sale.fecha_compra ? new Date(sale.fecha_compra).toLocaleString() : 'F. Desconocida';
                             const estadoLogistico = sale.estado_logistico || 'En espera';
-                            const badgeClass = estadoLogistico === 'Entregado' ? 'bg-success text-white' : 'bg-warning text-dark';
-                            const codigoRaw = sale.codigo_boleta || 'ORD-000';
-                            const codigoLimpio = codigoRaw.replace('ORD-', '');
+                            const estadoPedido = sale.estado_pedido || 'Pagado';
+                            const isAnulada = estadoPedido.includes('Anulado');
+                            
+                            const badgeLogistico = isAnulada ? 
+                                `<span class="badge bg-secondary opacity-50 px-3 py-2 fw-bold">ANULADO</span>` :
+                                `<span class="badge ${estadoLogistico === 'Entregado' ? 'bg-success' : 'bg-warning text-dark'} shadow-sm px-3 py-2 fw-bold">${estadoLogistico.toUpperCase()}</span>`;
+                            
                             const total = sale.total_venta ? parseFloat(sale.total_venta).toFixed(2) : '0.00';
+                            const codigoLimpio = (sale.codigo_boleta || 'ORD-000').replace('ORD-', '');
                             
                             tbody.innerHTML += `
-                                <tr>
+                                <tr class="${isAnulada ? 'table-light opacity-75' : ''}">
                                     <td class="ps-4 fw-bold">#${codigoLimpio}</td>
                                     <td>${date}</td>
-                                    <td>${sale.cliente_nombre || 'Cliente'}</td>
-                                    <td class="fw-bold text-dark ${isAdmin ? '' : 'd-none'}">S/ ${total}</td>
-                                    <td><span class="badge ${badgeClass} shadow-sm px-3 py-2 fw-bold" style="font-size: 0.7rem; letter-spacing: 0.5px;">${estadoLogistico.toUpperCase()}</span></td>
+                                    <td>
+                                        <div class="fw-semibold">${sale.cliente_nombre || 'Cliente'}</div>
+                                        <small class="text-muted">${isAnulada ? '<span class="text-danger fw-bold">Defecto Técnico</span>' : 'Venta Regular'}</small>
+                                    </td>
+                                    <td class="fw-bold ${isAdmin ? '' : 'd-none'}">
+                                        <span class="${isAnulada ? 'text-decoration-line-through text-danger' : 'text-dark'}">S/ ${total}</span>
+                                    </td>
+                                    <td>${badgeLogistico}</td>
                                     <td class="text-end pe-4">
-                                        <a href="/boleta/${codigoLimpio}" class="btn btn-sm btn-outline-dark me-1"><i class="bi bi-file-earmark-text"></i></a>
+                                        <a href="/boleta/${codigoLimpio}" class="btn btn-sm btn-outline-dark me-1" title="Ver Boleta"><i class="bi bi-file-earmark-text"></i></a>
+                                        ${isAdmin && !isAnulada ? `
+                                        <button class="btn btn-sm btn-outline-danger" onclick="annulSale(${sale.id}, '${codigoLimpio}')" title="Anular por Defecto">
+                                            <i class="bi bi-slash-circle"></i>
+                                        </button>
+                                        ` : ''}
                                         ${isAdmin ? `
-                                        <button class="btn btn-sm btn-outline-danger" onclick="deleteSale(${sale.id})"><i class="bi bi-trash"></i></button>
+                                        <button class="btn btn-sm btn-link text-muted p-0 ms-2" onclick="deleteSale(${sale.id})" title="Eliminar Permanente"><i class="bi bi-trash small"></i></button>
                                         ` : ''}
                                     </td>
                                 </tr>
@@ -209,6 +224,36 @@
                 Swal.fire('Error', 'Hubo un problema de conexión.', 'error');
             }
         };
+
+        async function annulSale(id, code) {
+            const result = await Swal.fire({
+                title: '¿Anular Venta por Defecto?',
+                html: `Estás a punto de anular la boleta <b>#${code}</b>.<br><br><small class='text-danger'>Esta acción indicará que el producto falló y el monto no contará en tus ganancias.</small>`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                confirmButtonText: 'Sí, anular por falla',
+                cancelButtonText: 'Cancelar',
+                reverseButtons: true
+            });
+
+            if (result.isConfirmed) {
+                try {
+                    const res = await fetch('/api/ventas/anular', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ id: id })
+                    });
+                    const data = await res.json();
+                    if (data.success) {
+                        Swal.fire('Venta Anulada', 'El registro se ha actualizado como defecto técnico.', 'success');
+                        renderSales();
+                    }
+                } catch (err) {
+                    Swal.fire('Error', 'No se pudo procesar la anulación.', 'error');
+                }
+            }
+        }
 
         async function deleteSale(id) {
             const result = await Swal.fire({

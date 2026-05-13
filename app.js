@@ -408,11 +408,12 @@ app.get('/api/stats/sales-by-category', async (req, res) => {
         LEFT JOIN detalle_ventas dv ON v.id = dv.venta_id
         LEFT JOIN productos p ON dv.producto_id = p.id
         LEFT JOIN categorias c ON p.categoria_id = c.id
+        WHERE (v.estado_pedido NOT LIKE '%Anulado%' OR v.estado_pedido IS NULL)
     `;
     const params = [];
 
     if (start && end) {
-        query += ` WHERE v.fecha_compra BETWEEN $1 AND $2 `;
+        query += ` AND v.fecha_compra BETWEEN $1 AND $2 `;
         params.push(start, end);
     }
 
@@ -447,10 +448,18 @@ app.get('/api/ventas/cliente/:clienteId', async (req, res) => {
             ventas[i].items = detallesResult.rows;
         }
         
-        res.json({ success: true, ventas: ventas });
+// Anular Venta por defecto (No devuelve stock)
+app.post('/api/ventas/anular', async (req, res) => {
+    const { id } = req.body;
+    try {
+        await db.query(
+            "UPDATE ventas SET estado_pedido = 'Anulado - Defectuoso' WHERE id = $1",
+            [id]
+        );
+        res.json({ success: true, message: 'Venta anulada por defecto técnico' });
     } catch (error) {
         console.error(error);
-        res.status(500).json({ success: false });
+        res.status(500).json({ success: false, message: 'Error al anular venta' });
     }
 });
 
