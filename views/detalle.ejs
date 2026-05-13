@@ -79,29 +79,32 @@
                     </div>
 
                     <div class="row g-3 mb-5">
-                        <div class="col-md-4">
-                            <label class="form-label small fw-bold">Cantidad:</label>
-                            <select class="form-select" id="qty-selector" ${product.stock <= 0 ? 'disabled' : ''}>
-                                <option value="1">1 unidad</option>
-                                <option value="2">2 unidades</option>
-                                <option value="3">3 unidades</option>
-                                <option value="4">4 unidades</option>
-                                <option value="5">5 unidades</option>
-                            </select>
+                        <div class="col-md-5">
+                            <label class="form-label small fw-bold text-muted uppercase">Cantidad:</label>
+                            <div class="quantity-selector ${product.stock <= 0 ? 'opacity-50' : ''}">
+                                <button class="btn" type="button" id="btn-minus" onclick="updateQuantity(-1, ${product.stock})" ${product.stock <= 0 ? 'disabled' : ''}>
+                                    <i class="bi bi-dash-lg"></i>
+                                </button>
+                                <input type="number" id="qty-input" value="${product.stock > 0 ? 1 : 0}" min="1" max="${product.stock}" readonly>
+                                <button class="btn" type="button" id="btn-plus" onclick="updateQuantity(1, ${product.stock})" ${product.stock <= 0 ? 'disabled' : ''}>
+                                    <i class="bi bi-plus-lg"></i>
+                                </button>
+                            </div>
+                            <small class="text-muted mt-2 d-block" id="stock-hint">${product.stock} unidades disponibles</small>
                         </div>
-                        <div class="col-md-8 d-flex align-items-end">
+                        <div class="col-md-7 d-flex align-items-end">
                             ${product.stock > 0 ? `
-                                <button class="btn btn-warning w-100 fw-bold py-2 shadow-sm" onclick="addToCart(${product.id}, parseInt(document.getElementById('qty-selector').value))">
-                                    <i class="bi bi-cart-plus me-2"></i>AÑADIR AL CARRITO
+                                <button class="btn btn-warning w-100 fw-bold py-3 shadow-sm border-0 rounded-4" onclick="addToCart(${product.id}, parseInt(document.getElementById('qty-input').value))">
+                                    <i class="bi bi-cart-plus me-2 fs-5"></i>AÑADIR AL CARRITO
                                 </button>
                             ` : `
-                                <div class="alert alert-danger w-100 mb-0 py-2 text-center fw-bold">
-                                    <i class="bi bi-exclamation-octagon me-2"></i>PRODUCTO AGOTADO
+                                <div class="alert alert-danger w-100 mb-0 py-3 text-center fw-bold rounded-4 border-0">
+                                    <i class="bi bi-exclamation-octagon me-2"></i>PRODUCTO SIN STOCK
                                 </div>
                             `}
                         </div>
-                        <div class="col-12">
-                            <button class="btn btn-dark w-100 fw-bold py-3 shadow" ${product.stock <= 0 ? 'disabled' : ''} onclick="buyNow(${product.id})">
+                        <div class="col-12 mt-3">
+                            <button class="btn btn-dark w-100 fw-bold py-3 rounded-4 shadow" ${product.stock <= 0 ? 'disabled' : ''} onclick="buyNow(${product.id})">
                                 COMPRAR AHORA
                             </button>
                         </div>
@@ -126,8 +129,27 @@
         `;
     }
 
+    function updateQuantity(delta, maxStock) {
+        const input = document.getElementById('qty-input');
+        const btnMinus = document.getElementById('btn-minus');
+        const btnPlus = document.getElementById('btn-plus');
+        let current = parseInt(input.value);
+        
+        let nextValue = current + delta;
+        
+        if (nextValue >= 1 && nextValue <= maxStock) {
+            input.value = nextValue;
+            current = nextValue;
+        }
+
+        // Bloquear botones visualmente si llegan al límite
+        btnMinus.disabled = (current <= 1);
+        btnPlus.disabled = (current >= maxStock);
+    }
+
     function buyNow(productId) {
-        const qty = parseInt(document.getElementById('qty-selector').value) || 1;
+        const input = document.getElementById('qty-input');
+        const qty = parseInt(input ? input.value : 1);
         addToCart(productId, qty);
         window.location.href = '/carrito';
     }

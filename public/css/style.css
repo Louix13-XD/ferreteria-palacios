@@ -113,3 +113,59 @@ footer {
 .social-links i:hover {
     color: var(--primary-color);
 }
+
+/* Selector de Cantidad Moderno */
+.quantity-selector {
+    display: flex;
+    align-items: center;
+    border: 1px solid #dee2e6;
+    border-radius: 12px;
+    overflow: hidden;
+    background: #f8f9fa;
+    transition: all 0.3s ease;
+    max-width: 140px;
+}
+
+.quantity-selector:focus-within {
+    border-color: #ffc107;
+    box-shadow: 0 0 0 0.25rem rgba(255, 193, 7, 0.25);
+}
+
+.quantity-selector .btn {
+    border: none;
+    background: transparent;
+    padding: 10px 15px;
+    font-weight: bold;
+    color: #495057;
+    transition: background 0.2s;
+    border-radius: 0;
+}
+
+.quantity-selector .btn:hover {
+    background: rgba(0,0,0,0.05);
+    color: #000;
+}
+
+.quantity-selector .btn:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+.quantity-selector input {
+    border: none;
+    background: transparent;
+    text-align: center;
+    font-weight: bold;
+    font-size: 1.1rem;
+    width: 50px;
+    padding: 0;
+    pointer-events: none; /* Solo lectura real */
+}
+
+/* Quitar flechitas del input number */
+.quantity-selector input::-webkit-outer-spin-button,
+.quantity-selector input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
