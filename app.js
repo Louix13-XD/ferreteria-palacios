@@ -458,7 +458,7 @@ app.get('/api/ventas/cliente/:clienteId', async (req, res) => {
     }
 });
 
-// Anular Venta por defecto (No devuelve stock)
+// Anular Venta Completa
 app.post('/api/ventas/anular', async (req, res) => {
     const { id, motivo } = req.body;
     try {
@@ -470,6 +470,57 @@ app.post('/api/ventas/anular', async (req, res) => {
     } catch (error) {
         console.error(error);
         res.status(500).json({ success: false, message: 'Error al anular venta' });
+    }
+});
+
+// Devolución Parcial (Anular solo ciertos productos)
+app.post('/api/ventas/anular-parcial', async (req, res) => {
+    const { venta_id, items, motivo } = req.body; // items es un array de IDs de detalle_ventas
+    const client = await db.connect();
+    try {
+        await client.query('BEGIN');
+        
+        let totalRestar = 0;
+        for (let itemId of items) {
+            const itemRes = await client.query('SELECT subtotal FROM detalle_ventas WHERE id = $1', [itemId]);
+            if (itemRes.rows.length > 0) {
+                totalRestar += parseFloat(itemRes.rows[0].subtotal);
+                await client.query(
+                    "UPDATE detalle_ventas SET estado = 'Defectuoso', motivo_falla = $1 WHERE id = $2",
+                    [motivo, itemId]
+                );
+            }
+        }
+
+        await client.query(
+            "UPDATE ventas SET total_venta = total_venta - $1, estado_pedido = 'Parcialmente Anulado' WHERE id = $2",
+            [totalRestar, venta_id]
+        );
+
+        await client.query('COMMIT');
+        res.json({ success: true, message: 'Devolución parcial procesada' });
+    } catch (error) {
+        await client.query('ROLLBACK');
+        console.error(error);
+        res.status(500).json({ success: false, message: 'Error en devolución parcial' });
+    } finally {
+        client.release();// Obtener todas las mermas (productos defectuosos)
+app.get('/api/mermas', async (req, res) => {
+    try {
+        const result = await db.query(`
+            SELECT dv.*, v.codigo_boleta, v.fecha_compra, u.nombre_completo as cliente_nombre
+            FROM detalle_ventas dv
+            JOIN ventas v ON dv.venta_id = v.id
+            JOIN usuarios u ON v.cliente_id = u.id
+            WHERE dv.estado = 'Defectuoso'
+            ORDER BY v.fecha_compra DESC
+        `);
+        res.json({ success: true, mermas: result.rows });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ success: false });
+    }
+});
     }
 });
 

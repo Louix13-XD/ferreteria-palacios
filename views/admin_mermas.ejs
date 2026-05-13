@@ -11,6 +11,8 @@
         body { background-color: #f8f9fa; font-family: 'Inter', sans-serif; }
         .admin-sidebar { width: 250px; height: 100vh; position: fixed; background: #212529; color: white; }
         .admin-content { margin-left: 250px; padding: 30px; }
+        .nav-link-admin { color: rgba(255,255,255,0.7); padding: 15px 25px; display: block; text-decoration: none; border-left: 4px solid transparent; }
+        .nav-link-admin:hover, .nav-link-admin.active { color: #ffc107; background: rgba(255,193,7,0.1); border-left-color: #ffc107; }
         .card-merma { border-left: 5px solid #dc3545; transition: transform 0.2s; }
         .card-merma:hover { transform: translateY(-5px); }
     </style>
@@ -46,11 +48,11 @@
         async function renderMermas() {
             const container = document.getElementById('mermas-container');
             try {
-                const res = await fetch('/api/ventas');
+                const res = await fetch('/api/mermas');
                 const data = await res.json();
 
                 if (data.success) {
-                    const mermas = data.ventas.filter(v => v.estado_pedido && v.estado_pedido.includes('Anulado'));
+                    const mermas = data.mermas;
                     container.innerHTML = '';
 
                     if (mermas.length === 0) {
@@ -63,29 +65,31 @@
                         return;
                     }
 
-                    mermas.forEach(sale => {
-                        const date = new Date(sale.fecha_compra).toLocaleDateString('es-PE', { day: '2-digit', month: 'long', year: 'numeric' });
-                        const total = parseFloat(sale.total_venta).toFixed(2);
+                    mermas.forEach(merma => {
+                        const date = new Date(merma.fecha_compra).toLocaleDateString('es-PE', { day: '2-digit', month: 'long', year: 'numeric' });
                         
                         container.innerHTML += `
                             <div class="col-md-6 mb-4">
                                 <div class="card border-0 shadow-sm rounded-4 card-merma h-100 p-3">
                                     <div class="d-flex justify-content-between mb-2">
-                                        <span class="badge bg-light text-dark border fw-bold">#${sale.codigo_boleta}</span>
+                                        <span class="badge bg-light text-dark border fw-bold">#${merma.codigo_boleta}</span>
                                         <span class="text-muted small"><i class="bi bi-calendar3 me-1"></i>${date}</span>
                                     </div>
-                                    <h6 class="fw-bold text-danger mb-1">MOTIVO DE LA FALLA:</h6>
-                                    <p class="mb-3 p-2 bg-light rounded italic">"${sale.motivo_anulacion || 'Sin motivo especificado'}"</p>
+                                    <h6 class="fw-bold text-dark mb-0">${merma.nombre_producto}</h6>
+                                    <small class="text-muted d-block mb-2">Cantidad: ${merma.cantidad}</small>
+                                    
+                                    <h6 class="fw-bold text-danger mb-1 small">MOTIVO DE LA FALLA:</h6>
+                                    <p class="mb-3 p-2 bg-light rounded italic small">"${merma.motivo_falla || 'Sin motivo especificado'}"</p>
                                     
                                     <div class="border-top pt-2">
                                         <div class="d-flex justify-content-between align-items-center">
                                             <div>
                                                 <small class="text-muted d-block">Cliente:</small>
-                                                <span class="fw-semibold">${sale.cliente_nombre}</span>
+                                                <span class="fw-semibold small">${merma.cliente_nombre}</span>
                                             </div>
                                             <div class="text-end">
-                                                <small class="text-muted d-block">Pérdida (Monto):</small>
-                                                <span class="fw-bold text-danger">S/ ${total}</span>
+                                                <small class="text-muted d-block">Pérdida Estimada:</small>
+                                                <span class="fw-bold text-danger">S/ ${merma.subtotal}</span>
                                             </div>
                                         </div>
                                     </div>

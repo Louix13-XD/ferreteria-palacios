@@ -225,40 +225,73 @@
             }
         };
 
-        async function annulSale(id) {
-            const { value: motivo } = await Swal.fire({
-                title: '¿Estás seguro de anular esta venta?',
-                text: "La venta se marcará como DEFECTUOSA y no sumará a las ganancias. Escribe el motivo de la falla:",
-                input: 'text',
-                inputPlaceholder: 'Ej: Motor quemado, producto roto...',
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#d33',
-                cancelButtonColor: '#3085d6',
-                confirmButtonText: 'Sí, anular por falla',
-                cancelButtonText: 'Cancelar',
-                inputValidator: (value) => {
-                    if (!value) {
-                        return '¡Debes escribir el motivo de la falla!'
-                    }
-                }
-            });
+        async function annulSale(id, code) {
+            try {
+                // 1. Obtener los productos de esta venta
+                const resDetalle = await fetch(`/api/ventas/detalle/${code}`);
+                const dataDetalle = await resDetalle.json();
+                
+                if (!dataDetalle.success) throw new Error("No se pudo obtener el detalle");
 
-            if (motivo) {
-                try {
-                    const response = await fetch('/api/ventas/anular', {
+                const productos = dataDetalle.productos;
+                let productosHTML = productos.map(p => `
+                    <div class="text-start mb-2 d-flex align-items-center p-2 border rounded">
+                        <input type="checkbox" class="form-check-input me-3 merma-check" value="${p.id}" id="item-${p.id}">
+                        <label class="form-check-label flex-grow-1" for="item-${p.id}">
+                            <b>${p.nombre_producto}</b> <br>
+                            <small class="text-muted">${p.cantidad} unidades - S/ ${p.subtotal}</small>
+                        </label>
+                    </div>
+                `).join('');
+
+                const { value: formValues } = await Swal.fire({
+                    title: 'Gestión de Devolución',
+                    html: `
+                        <p class="small text-muted mb-3">Selecciona los productos defectuosos de la boleta <b>#${code}</b>:</p>
+                        <div style="max-height: 300px; overflow-y: auto;" class="mb-3">
+                            ${productosHTML}
+                        </div>
+                        <input id="swal-motivo" class="swal2-input" placeholder="Escribe el motivo de la falla (Ej: Roto, no enciende)">
+                    `,
+                    focusConfirm: false,
+                    showCancelButton: true,
+                    confirmButtonText: 'Procesar Devolución',
+                    cancelButtonText: 'Cancelar',
+                    confirmButtonColor: '#d33',
+                    preConfirm: () => {
+                        const selectedItems = Array.from(document.querySelectorAll('.merma-check:checked')).map(el => el.value);
+                        const motivo = document.getElementById('swal-motivo').value;
+                        if (selectedItems.length === 0) {
+                            Swal.showValidationMessage('Debes seleccionar al menos un producto');
+                            return false;
+                        }
+                        if (!motivo) {
+                            Swal.showValidationMessage('Debes escribir el motivo de la falla');
+                            return false;
+                        }
+                        return { items: selectedItems, motivo: motivo };
+                    }
+                });
+
+                if (formValues) {
+                    const response = await fetch('/api/ventas/anular-parcial', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ id, motivo })
+                        body: JSON.stringify({ 
+                            venta_id: id, 
+                            items: formValues.items, 
+                            motivo: formValues.motivo 
+                        })
                     });
                     const result = await response.json();
                     if (result.success) {
-                        Swal.fire('Anulada', 'La venta ha sido registrada como merma.', 'success');
+                        Swal.fire('Procesado', 'La devolución parcial ha sido registrada.', 'success');
                         renderSales();
                     }
-                } catch (error) {
-                    Swal.fire('Error', 'No se pudo anular la venta', 'error');
                 }
+            } catch (error) {
+                console.error(error);
+                Swal.fire('Error', 'No se pudo procesar la devolución', 'error');
             }
         }
 
