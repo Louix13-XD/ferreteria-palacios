@@ -447,7 +447,13 @@ app.get('/api/ventas/cliente/:clienteId', async (req, res) => {
             `, [ventas[i].id]);
             ventas[i].items = detallesResult.rows;
         }
-        
+        res.json({ success: true, ventas: ventas });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ success: false });
+    }
+});
+
 // Anular Venta por defecto (No devuelve stock)
 app.post('/api/ventas/anular', async (req, res) => {
     const { id } = req.body;
