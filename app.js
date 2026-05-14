@@ -508,7 +508,38 @@ app.post('/api/ventas/anular-parcial', async (req, res) => {
     }
 });
 
+
+// Estadísticas: Ventas por Categoría
+app.get('/api/stats/sales-by-category', async (req, res) => {
+    const { start, end } = req.query;
+    try {
+        let query = `
+            SELECT c.nombre as categoria, SUM(dv.subtotal) as total
+            FROM detalle_ventas dv
+            JOIN productos p ON dv.producto_id = p.id
+            JOIN categorias c ON p.categoria_id = c.id
+            JOIN ventas v ON dv.venta_id = v.id
+            WHERE v.estado_pedido != 'Cancelado'
+        `;
+        const params = [];
+        
+        if (start && end) {
+            query += ` AND v.fecha_compra BETWEEN $1 AND $2`;
+            params.push(start, end);
+        }
+        
+        query += ` GROUP BY c.nombre ORDER BY total DESC`;
+        
+        const result = await db.query(query, params);
+        res.json({ success: true, stats: result.rows });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ success: false, message: 'Error al obtener estadísticas' });
+    }
+});
+
 // Obtener todas las mermas (productos defectuosos)
+
 app.get('/api/mermas', async (req, res) => {
     try {
         const result = await db.query(`
