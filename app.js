@@ -514,15 +514,12 @@ app.get('/api/stats/sales-by-category', async (req, res) => {
     try {
         const query = `
             SELECT 
-                COALESCE(c.nombre, 'Sin Categoría') as categoria, 
-                SUM(CAST(dv.subtotal AS DECIMAL)) as total
+                c.nombre as categoria, 
+                SUM(dv.subtotal) as total
             FROM detalle_ventas dv
-            LEFT JOIN productos p ON dv.producto_id = p.id
-            LEFT JOIN categorias c ON p.categoria_id = c.id
-            LEFT JOIN ventas v ON dv.venta_id = v.id
-            WHERE v.estado_pedido NOT IN ('Cancelado', 'Anulado')
+            JOIN productos p ON dv.producto_id = p.id
+            JOIN categorias c ON p.categoria_id = c.id
             GROUP BY c.nombre
-            ORDER BY total DESC
         `;
         
         const result = await db.query(query);
