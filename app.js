@@ -509,32 +509,27 @@ app.post('/api/ventas/anular-parcial', async (req, res) => {
 });
 
 
-// Estadísticas: Ventas por Categoría
+// Estadísticas: Ventas por Categoría (Versión Robusta)
 app.get('/api/stats/sales-by-category', async (req, res) => {
-    const { start, end } = req.query;
     try {
-        let query = `
-            SELECT c.nombre as categoria, SUM(dv.subtotal) as total
+        const query = `
+            SELECT 
+                COALESCE(c.nombre, 'Sin Categoría') as categoria, 
+                SUM(CAST(dv.subtotal AS DECIMAL)) as total
             FROM detalle_ventas dv
-            JOIN productos p ON dv.producto_id = p.id
-            JOIN categorias c ON p.categoria_id = c.id
-            JOIN ventas v ON dv.venta_id = v.id
-            WHERE v.estado_pedido != 'Cancelado'
+            LEFT JOIN productos p ON dv.producto_id = p.id
+            LEFT JOIN categorias c ON p.categoria_id = c.id
+            LEFT JOIN ventas v ON dv.venta_id = v.id
+            WHERE v.estado_pedido NOT IN ('Cancelado', 'Anulado')
+            GROUP BY c.nombre
+            ORDER BY total DESC
         `;
-        const params = [];
         
-        if (start && end) {
-            query += ` AND v.fecha_compra BETWEEN $1 AND $2`;
-            params.push(start, end);
-        }
-        
-        query += ` GROUP BY c.nombre ORDER BY total DESC`;
-        
-        const result = await db.query(query, params);
+        const result = await db.query(query);
         res.json({ success: true, stats: result.rows });
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ success: false, message: 'Error al obtener estadísticas' });
+        console.error("ERROR EN STATS:", error.message);
+        res.status(500).json({ success: false, message: error.message });
     }
 });
 
