@@ -514,11 +514,11 @@ app.get('/api/stats/sales-by-category', async (req, res) => {
     try {
         const query = `
             SELECT 
-                c.nombre as categoria, 
-                SUM(dv.subtotal) as total
+                c.nombre AS categoria, 
+                SUM(dv.subtotal) AS total
             FROM detalle_ventas dv
-            JOIN productos p ON dv.producto_id = p.id
-            JOIN categorias c ON p.categoria_id = c.id
+            INNER JOIN productos p ON dv.producto_id = p.id
+            INNER JOIN categorias c ON p.categoria_id = c.id
             GROUP BY c.nombre
         `;
         
