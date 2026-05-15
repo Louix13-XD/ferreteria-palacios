@@ -70,8 +70,9 @@
 </main>
 
 <script>
-    // Pasar la categoría de EJS a JS
+    // Pasar la categoría y búsqueda de EJS a JS
     const currentCategory = "<%= categoria %>";
+    const searchResultQuery = "<%= typeof searchQuery !== 'undefined' ? searchQuery : '' %>";
 </script>
 
 <%- include('footer') %>

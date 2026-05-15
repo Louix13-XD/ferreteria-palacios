@@ -47,10 +47,13 @@
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
-                <form class="d-flex mx-auto w-50 my-2 my-lg-0">
+                <form class="d-flex mx-auto w-50 my-2 my-lg-0 position-relative" id="header-search-form" action="/search" method="GET">
                     <div class="input-group">
-                        <input class="form-control" type="search" placeholder="¿Qué estás buscando hoy?" aria-label="Search">
+                        <input class="form-control" type="search" name="q" id="header-search-input" placeholder="¿Qué estás buscando hoy?" aria-label="Search" autocomplete="off">
                         <button class="btn btn-warning" type="submit"><i class="bi bi-search"></i></button>
+                    </div>
+                    <!-- Contenedor de Sugerencias -->
+                    <div id="search-suggestions" class="position-absolute top-100 start-0 w-100 bg-white shadow-lg rounded-bottom-4 overflow-hidden d-none" style="z-index: 1050; border: 1px solid #ddd; margin-top: 2px;">
                     </div>
                 </form>
                 <ul class="navbar-nav ms-auto align-items-center nav-custom-gap">

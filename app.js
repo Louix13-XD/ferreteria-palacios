@@ -31,7 +31,18 @@ app.get('/', (req, res) => {
     res.render('index', { title: 'Ferretería Palacios - Inicio' });
 });
 
+
+app.get('/search', (req, res) => {
+    const query = req.query.q || '';
+    res.render('productos', { 
+        title: `Búsqueda: ${query}`,
+        categoria: `Resultados para: "${query}"`,
+        searchQuery: query
+    });
+});
+
 app.get('/productos/:categoria', (req, res) => {
+
     const categoria = req.params.categoria;
     res.render('productos', { 
         title: `Categoría: ${categoria.charAt(0).toUpperCase() + categoria.slice(1)}`,
@@ -256,7 +267,29 @@ app.post('/api/ventas/actualizar-logistica', async (req, res) => {
     }
 });
 
+
+app.get('/api/productos/buscar', async (req, res) => {
+    try {
+        const { q } = req.query;
+        if (!q) return res.json({ success: true, products: [] });
+        
+        const result = await db.query(`
+            SELECT p.*, c.nombre as category_name
+            FROM productos p
+            JOIN categorias c ON p.categoria_id = c.id
+            WHERE (p.nombre ILIKE $1 OR p.marca ILIKE $1) AND p.estado != 'Eliminado'
+            LIMIT 10
+        `, [`%${q}%`]);
+        
+        res.json({ success: true, products: result.rows });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ success: false, message: 'Error en la búsqueda' });
+    }
+});
+
 app.get('/api/productos', async (req, res) => {
+
     try {
         const result = await db.query(`
             SELECT p.*, c.nombre as category_name, u.nombre_completo as updated_by_name

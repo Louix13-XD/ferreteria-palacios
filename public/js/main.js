@@ -173,19 +173,99 @@ document.addEventListener('DOMContentLoaded', async () => {
     
     updateCartUI();
     updateWishlistUI();
+    setupHeaderSearch(); // Inicializar el buscador del header
     
     const normalizeText = (text) => {
         return text.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
     };
 
-    if (typeof currentCategory !== 'undefined') {
+    // Lógica para decidir qué productos mostrar al cargar la página
+    if (typeof searchResultQuery !== 'undefined' && searchResultQuery !== '') {
+        // Estamos en una página de resultados de búsqueda
+        const filtered = storeProducts.filter(p => 
+            normalizeText(p.name).includes(normalizeText(searchResultQuery)) || 
+            normalizeText(p.brand).includes(normalizeText(searchResultQuery))
+        );
+        renderProducts(filtered, 'category-products');
+        setupCategoryFilters(filtered);
+    } else if (typeof currentCategory !== 'undefined') {
+        // Estamos en una categoría específica
         const filtered = storeProducts.filter(p => normalizeText(p.category).includes(normalizeText(currentCategory)));
         renderProducts(filtered, 'category-products');
         setupCategoryFilters(filtered);
     } else {
+        // Estamos en el Inicio o página general
         renderProducts(storeProducts, 'featured-products');
     }
 });
+
+// --- LÓGICA DE BÚSQUEDA DEL HEADER ---
+
+function setupHeaderSearch() {
+    const input = document.getElementById('header-search-input');
+    const suggestions = document.getElementById('search-suggestions');
+    const form = document.getElementById('header-search-form');
+
+    if (!input || !suggestions) return;
+
+    let debounceTimer;
+
+    input.addEventListener('input', (e) => {
+        const query = e.target.value.trim();
+        clearTimeout(debounceTimer);
+
+        if (query.length < 2) {
+            suggestions.classList.add('d-none');
+            return;
+        }
+
+        debounceTimer = setTimeout(async () => {
+            try {
+                const res = await fetch(`/api/productos/buscar?q=${encodeURIComponent(query)}`);
+                const data = await res.json();
+
+                if (data.success && data.products.length > 0) {
+                    renderSearchSuggestions(data.products);
+                    suggestions.classList.remove('d-none');
+                } else {
+                    suggestions.classList.add('d-none');
+                }
+            } catch (err) {
+                console.error('Error en búsqueda:', err);
+            }
+        }, 300);
+    });
+
+    // Cerrar sugerencias al hacer clic fuera
+    document.addEventListener('click', (e) => {
+        if (!form.contains(e.target)) {
+            suggestions.classList.add('d-none');
+        }
+    });
+}
+
+function renderSearchSuggestions(products) {
+    const suggestions = document.getElementById('search-suggestions');
+    if (!suggestions) return;
+
+    suggestions.innerHTML = products.map(p => `
+        <a href="/producto/${p.id}" class="text-decoration-none text-dark d-flex align-items-center p-2 border-bottom suggestion-item">
+            <img src="${p.imagen_url || '/img/default_product.png'}" alt="${p.nombre}" style="width: 40px; height: 40px; object-fit: contain;" class="me-3 rounded">
+            <div>
+                <div class="fw-bold small">${p.nombre}</div>
+                <div class="text-warning fw-bold" style="font-size: 0.75rem;">S/ ${parseFloat(p.precio_final).toFixed(2)}</div>
+            </div>
+        </a>
+    `).join('');
+    
+    // Estilo para hover de sugerencias
+    const style = document.createElement('style');
+    style.innerHTML = `
+        .suggestion-item:hover { background-color: #f8f9fa; }
+        .suggestion-item:last-child { border-bottom: none !important; }
+    `;
+    document.head.appendChild(style);
+}
 
 // --- LÓGICA DE FILTROS DINÁMICOS ---
 
