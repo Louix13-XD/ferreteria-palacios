@@ -43,11 +43,11 @@
                     <span class="fw-normal text-light opacity-75" style="font-size: 0.75rem; letter-spacing: 5px;">FERRETERÍA</span>
                 </div>
             </a>
-            <!-- Buscador Central (Visible en Escritorio, colapsable en móvil) -->
-            <div class="collapse navbar-collapse order-3 order-lg-2" id="navbarNav">
-                <form class="d-flex mx-auto my-3 my-lg-0 position-relative" id="header-search-form" action="/search" method="GET" style="width: 100%; max-width: 500px;">
+            <!-- Buscador (Siempre visible en escritorio, fluye debajo en móvil) -->
+            <div class="order-3 order-lg-2 flex-grow-1 px-lg-4" id="search-container">
+                <form class="d-flex mx-auto my-2 my-lg-0 position-relative" id="header-search-form" action="/search" method="GET" style="width: 100%; max-width: 600px;">
                     <div class="input-group">
-                        <input class="form-control border-end-0 rounded-start-pill ps-4" type="search" name="q" id="header-search-input" placeholder="¿Qué buscas?" aria-label="Search" autocomplete="off">
+                        <input class="form-control border-end-0 rounded-start-pill ps-4" type="search" name="q" id="header-search-input" placeholder="¿Qué buscas hoy?" aria-label="Search" autocomplete="off">
                         <button class="btn btn-warning rounded-end-pill px-3 border-start-0" type="submit"><i class="bi bi-search"></i></button>
                     </div>
                     <div id="search-suggestions" class="position-absolute top-100 start-0 w-100 bg-white shadow-lg rounded-bottom-4 overflow-hidden d-none" style="z-index: 1050; border: 1px solid #ddd; margin-top: 2px;">
@@ -55,8 +55,8 @@
                 </form>
             </div>
 
-            <!-- Iconos de Acción (Siempre a la derecha) -->
-            <div class="d-flex align-items-center gap-2 gap-md-3 ms-auto order-2 order-lg-3">
+            <!-- Iconos de Acción y Menú Único -->
+            <div class="d-flex align-items-center gap-1 gap-md-2 ms-auto order-2 order-lg-3">
                 <div class="nav-item d-none d-sm-block" id="header-admin-btn">
                     <a class="btn btn-warning btn-sm fw-bold px-2 py-1 rounded-pill shadow-sm" href="/admin" title="Panel Administrativo">
                         <i class="bi bi-speedometer2"></i>
@@ -79,14 +79,12 @@
                         <span class="position-absolute translate-middle badge rounded-pill bg-danger badge-notification" style="top: 10px; right: -2px;" id="cart-badge">0</span>
                     </a>
                 </div>
-                <div class="nav-item">
+                <!-- UN SOLO MENÚ LATERAL -->
+                <div class="nav-item ms-1">
                     <button class="btn btn-outline-warning border-0 p-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight">
                         <i class="bi bi-list fs-3"></i>
                     </button>
                 </div>
-                <button class="navbar-toggler border-0 ms-1 p-1 d-lg-none" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                    <span class="navbar-toggler-icon" style="width: 1.1em; height: 1.1em;"></span>
-                </button>
             </div>
         </div>
     </nav>
