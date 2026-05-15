@@ -43,50 +43,45 @@
                     <span class="fw-normal text-light opacity-75" style="font-size: 0.75rem; letter-spacing: 5px;">FERRETERÍA</span>
                 </div>
             </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <form class="d-flex mx-auto w-50 my-2 my-lg-0 position-relative" id="header-search-form" action="/search" method="GET">
+            <!-- Iconos visibles siempre (incluso en móvil) -->
+            <div class="d-flex align-items-center nav-custom-gap ms-auto order-lg-3">
+                <li class="nav-item list-unstyled d-none d-sm-block" id="header-admin-btn">
+                    <a class="btn btn-warning btn-sm fw-bold px-3 py-1 rounded-pill shadow-sm" href="/admin">
+                        <i class="bi bi-speedometer2"></i>
+                    </a>
+                </li>
+                <li class="nav-item list-unstyled">
+                    <a class="nav-link text-white" href="/login" id="header-user-link"><i class="bi bi-person-circle fs-4"></i></a>
+                </li>
+                <li class="nav-item list-unstyled">
+                    <a class="nav-link text-white position-relative" href="/favoritos">
+                        <i class="bi bi-heart fs-4"></i>
+                        <span class="position-absolute badge rounded-pill bg-warning text-dark badge-notification" id="wishlist-badge">0</span>
+                    </a>
+                </li>
+                <li class="nav-item list-unstyled">
+                    <a class="nav-link text-white position-relative" href="/carrito">
+                        <i class="bi bi-cart fs-4"></i>
+                        <span class="position-absolute badge rounded-pill bg-danger badge-notification" id="cart-badge">0</span>
+                    </a>
+                </li>
+                <button class="navbar-toggler border-0 ms-2" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                    <span class="navbar-toggler-icon" style="width: 1.2em; height: 1.2em;"></span>
+                </button>
+                <button class="btn btn-outline-warning border-0 fs-4 d-none d-lg-inline-block" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight">
+                    <i class="bi bi-list"></i>
+                </button>
+            </div>
+
+            <div class="collapse navbar-collapse order-lg-2" id="navbarNav">
+                <form class="d-flex mx-auto w-100 w-lg-50 my-3 my-lg-0 position-relative" id="header-search-form" action="/search" method="GET">
                     <div class="input-group">
-                        <input class="form-control" type="search" name="q" id="header-search-input" placeholder="¿Qué estás buscando hoy?" aria-label="Search" autocomplete="off">
+                        <input class="form-control" type="search" name="q" id="header-search-input" placeholder="¿Qué buscas?" aria-label="Search" autocomplete="off">
                         <button class="btn btn-warning" type="submit"><i class="bi bi-search"></i></button>
                     </div>
-                    <!-- Contenedor de Sugerencias -->
                     <div id="search-suggestions" class="position-absolute top-100 start-0 w-100 bg-white shadow-lg rounded-bottom-4 overflow-hidden d-none" style="z-index: 1050; border: 1px solid #ddd; margin-top: 2px;">
                     </div>
                 </form>
-                <ul class="navbar-nav ms-auto align-items-center nav-custom-gap">
-                    <li class="nav-item d-none" id="header-admin-btn">
-                        <a class="btn btn-warning btn-sm fw-bold px-3 py-1 rounded-pill shadow-sm" href="/admin">
-                            <i class="bi bi-speedometer2 me-2"></i>PANEL
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/login" id="header-user-link"><i class="bi bi-person-circle fs-5"></i></a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link position-relative" href="/favoritos">
-                            <i class="bi bi-heart fs-5"></i>
-                            <span class="position-absolute badge rounded-pill bg-warning text-dark badge-notification" id="wishlist-badge">
-                                0
-                            </span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link position-relative" href="/carrito">
-                            <i class="bi bi-cart fs-5"></i>
-                            <span class="position-absolute badge rounded-pill bg-danger badge-notification" id="cart-badge">
-                                0
-                            </span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <button class="btn btn-outline-warning border-0 fs-4" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight">
-                            <i class="bi bi-list"></i>
-                        </button>
-                    </li>
-                </ul>
             </div>
         </div>
     </nav>
