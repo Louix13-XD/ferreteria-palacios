@@ -1,6 +1,6 @@
 <%- include('header') %>
 
-<div class="container py-5" style="min-height: 80vh;">
+<div class="container py-5">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
             <h2 class="fw-bold"><i class="bi bi-box-seam me-2 text-warning"></i>Mis Pedidos</h2>
@@ -13,7 +13,7 @@
     </div>
 
     <!-- Contenedor de Pedidos -->
-    <div id="orders-container">
+    <div id="orders-container" class="clearfix">
         <!-- Los pedidos se cargarán aquí dinámicamente -->
     </div>
 
@@ -45,12 +45,15 @@
         border: 1px solid #e0e0e0;
         border-radius: 12px;
         overflow: hidden;
-        margin-bottom: 30px;
+        margin-bottom: 40px; /* Aumentado el margen */
         transition: transform 0.2s, shadow 0.2s;
         background: white;
+        display: block; /* Asegurar que sea bloque */
+        width: 100%;
+        clear: both;
     }
     .order-card:hover {
-        box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+        box-shadow: 0 15px 30px rgba(0,0,0,0.08);
     }
     .order-header {
         background-color: #f0f2f5;
